@@ -6,7 +6,7 @@ diff -ur ../src.orig/cluster/gce/configure.sh ./cluster/gce/configure.sh
  
  # Generate containerd config
 -config_path="${CONTAINERD_CONFIG_PATH:-"/etc/containerd/config.toml"}"
-+config_path="${CONTAINERD_CONFIG_PATH:-"@TERMUX_PREFIX@/etc/containerd/config.toml"}"
++config_path="${CONTAINERD_CONFIG_PATH:-"/data/docker/etc/containerd/config.toml"}"
  mkdir -p $(dirname ${config_path})
  cni_bin_dir="${CONTAINERD_HOME}/opt/cni/bin"
  cni_template_path="${CONTAINERD_HOME}/opt/containerd/cluster/gce/cni.template"
@@ -18,7 +18,7 @@ diff -ur ../src.orig/contrib/ansible/cri-containerd.yaml ./contrib/ansible/cri-c
  
      - name: "Create a directory for containerd config"
 -      file: path=/etc/containerd state=directory
-+      file: path=@TERMUX_PREFIX@/etc/containerd state=directory
++      file: path=/data/docker/etc/containerd state=directory
  
      - name: "Start Containerd"
        systemd: name=containerd daemon_reload=yes state=started enabled=yes
@@ -30,7 +30,7 @@ diff -ur ../src.orig/script/setup/config-containerd ./script/setup/config-contai
  
  #
 -# establishes /etc/containerd/config.toml
-+# establishes @TERMUX_PREFIX@/etc/containerd/config.toml
++# establishes /data/docker/etc/containerd/config.toml
  # parameterized by the current SELinux mode
  #
  set -eux -o pipefail
@@ -39,10 +39,10 @@ diff -ur ../src.orig/script/setup/config-containerd ./script/setup/config-contai
  fi
  
 -mkdir -p /etc/containerd
-+mkdir -p @TERMUX_PREFIX@/etc/containerd
++mkdir -p /data/docker/etc/containerd
  
 -cat << EOF | sudo tee /etc/containerd/config.toml
-+cat << EOF | sudo tee @TERMUX_PREFIX@/etc/containerd/config.toml
++cat << EOF | sudo tee /data/docker/etc/containerd/config.toml
  version = 2
  [plugins]
    [plugins."io.containerd.grpc.v1.cri"]

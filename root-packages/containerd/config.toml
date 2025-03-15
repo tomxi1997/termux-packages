@@ -1,9 +1,9 @@
-root = "$PREFIX/var/lib/containerd"
-state = "$PREFIX/var/run/containerd"
-imports = ["$PREFIX/etc/containerd/runtime_*.toml", "./debug.toml"]
+root = "/data/docker/var/lib/containerd"
+state = "/data/docker/var/run/containerd"
+imports = ["/data/docker/etc/containerd/runtime_*.toml", "./debug.toml"]
 
 [grpc]
-  address = "$PREFIX/var/run/containerd/containerd.sock"
+  address = "/data/docker/var/run/containerd/containerd.sock"
 
 [debug]
-  address = "$PREFIX/var/run/containerd/debug.sock"
+  address = "/data/docker/var/run/containerd/debug.sock"
