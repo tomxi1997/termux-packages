@@ -42,7 +42,7 @@ diff -ur ../src.orig/script/setup/config-containerd ./script/setup/config-contai
 +mkdir -p /data/docker/etc/containerd
  
 -cat << EOF | sudo tee /etc/containerd/config.toml
-+cat << EOF | sudo tee /data/docker/etc/containerd/config.toml
++cat << EOF | tee /data/docker/etc/containerd/config.toml
  version = 2
  [plugins]
    [plugins."io.containerd.grpc.v1.cri"]
