@@ -130,7 +130,7 @@ termux_step_post_make_install() {
 	# foreground). This finish script works around that.
 	mkdir -p $TERMUX_PREFIX/var/service/dockerd/
 	{
-		echo "#!$TERMUX_PREFIX/bin/sh"
+		echo "#!/bin/sh"
 		echo "su -c pkill dockerd"
 	} > $TERMUX_PREFIX/var/service/dockerd/finish
 	chmod u+x $TERMUX_PREFIX/var/service/dockerd/finish
