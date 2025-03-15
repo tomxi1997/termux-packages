@@ -138,7 +138,7 @@ termux_step_post_make_install() {
 
 termux_step_create_debscripts() {
 	cat <<- EOF > postinst
-		#!${TERMUX_PREFIX}/bin/sh
+		#!$/bin/sh
 
 		echo 'NOTE: Docker requires the kernel to support'
 		echo 'device cgroups, namespace, VETH, among others.'
