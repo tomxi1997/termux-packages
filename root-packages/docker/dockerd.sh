@@ -26,4 +26,6 @@ for cg in ${cgroups}; do
 done
 
 # start the docker daemon
+export PATH="/data/docker/bin:$PATH"
+export LD_LIBRARY_PATH=/data/docker/lib:$LD_LIBRARY_PATH
 "/data/docker/libexec/dockerd" $@
