@@ -6,7 +6,7 @@ diff -uNr src.orig/libnetwork/resolvconf/resolvconf.go libnetwork/resolvconf/res
  const (
  	// defaultPath is the default path to the resolv.conf that contains information to resolve DNS. See Path().
 -	defaultPath = "/etc/resolv.conf"
-+	defaultPath = "@TERMUX_PREFIX@/etc/resolv.conf"
++	defaultPath = "/data/docker/etc/resolv.conf"
  	// alternatePath is a path different from defaultPath, that may be used to resolve DNS. See Path().
 -	alternatePath = "/run/systemd/resolve/resolv.conf"
 +	alternatePath = "/etc/resolv.conf"
@@ -21,7 +21,7 @@ diff -uNr src.orig/libnetwork/sandbox_dns_unix.go libnetwork/sandbox_dns_unix.go
  		// will be used
  		currRC = &resolvconf.File{}
 -		logrus.Infof("/etc/resolv.conf does not exist")
-+		logrus.Infof("@TERMUX_PREFIX@/etc/resolv.conf does not exist")
++		logrus.Infof("/data/docker/etc/resolv.conf does not exist")
  	}
  
  	if len(sb.config.dnsList) > 0 || len(sb.config.dnsSearchList) > 0 || len(sb.config.dnsOptionsList) > 0 {
@@ -33,7 +33,7 @@ diff -uNr src.orig/libnetwork/vendor/github.com/hashicorp/memberlist/config.go l
  		Keyring:   nil,
  
 -		DNSConfigPath: "/etc/resolv.conf",
-+		DNSConfigPath: "@TERMUX_PREFIX@/etc/resolv.conf",
++		DNSConfigPath: "/data/docker/etc/resolv.conf",
  
  		HandoffQueueDepth: 1024,
  		UDPBufferSize:     1400,
@@ -46,8 +46,8 @@ diff -uNr src.orig/moby/daemon/container_operations_unix.go moby/daemon/containe
  			*sboxOptions,
 -			libnetwork.OptionOriginHostsPath("/etc/hosts"),
 -			libnetwork.OptionOriginResolvConfPath("/etc/resolv.conf"),
-+			libnetwork.OptionOriginHostsPath("@TERMUX_PREFIX@/etc/hosts"),
-+			libnetwork.OptionOriginResolvConfPath("@TERMUX_PREFIX@/etc/resolv.conf"),
++			libnetwork.OptionOriginHostsPath("/data/docker/etc/hosts"),
++			libnetwork.OptionOriginResolvConfPath("/data/docker/etc/resolv.conf"),
  		)
  	case container.HostConfig.NetworkMode.IsUserDefined():
  		// The container uses a user-defined network. We use the embedded DNS
@@ -56,7 +56,7 @@ diff -uNr src.orig/moby/daemon/container_operations_unix.go moby/daemon/containe
  		*sboxOptions = append(
  			*sboxOptions,
 -			libnetwork.OptionOriginResolvConfPath("/etc/resolv.conf"),
-+			libnetwork.OptionOriginResolvConfPath("@TERMUX_PREFIX@/etc/resolv.conf"),
++			libnetwork.OptionOriginResolvConfPath("/data/docker/etc/resolv.conf"),
  		)
  	default:
  		// For other situations, such as the default bridge network, container
@@ -69,8 +69,8 @@ diff -uNr src.orig/moby/plugin/v2/plugin_linux.go moby/plugin/v2/plugin_linux.go
  		}
 -		etcHosts := "/etc/hosts"
 -		resolvConf := "/etc/resolv.conf"
-+		etcHosts := "@TERMUX_PREFIX@/etc/hosts"
-+		resolvConf := "@TERMUX_PREFIX@/etc/resolv.conf"
++		etcHosts := "/data/docker/etc/hosts"
++		resolvConf := "/data/docker/etc/resolv.conf"
  		mounts = append(mounts,
  			types.PluginMount{
  				Source:      &etcHosts,
@@ -94,7 +94,7 @@ diff -uNr src.orig/moby/vendor/github.com/containerd/containerd/oci/spec_opts.go
  		Destination: "/etc/hosts",
  		Type:        "bind",
 -		Source:      "/etc/hosts",
-+		Source:      "@TERMUX_PREFIX@/etc/hosts",
++		Source:      "/data/docker/etc/hosts",
  		Options:     []string{"rbind", "ro"},
  	})
  	return nil
@@ -103,7 +103,7 @@ diff -uNr src.orig/moby/vendor/github.com/containerd/containerd/oci/spec_opts.go
  		Destination: "/etc/resolv.conf",
  		Type:        "bind",
 -		Source:      "/etc/resolv.conf",
-+		Source:      "@TERMUX_PREFIX@/etc/resolv.conf",
++		Source:      "/data/docker/etc/resolv.conf",
  		Options:     []string{"rbind", "ro"},
  	})
  	return nil
@@ -112,7 +112,7 @@ diff -uNr src.orig/moby/vendor/github.com/containerd/containerd/oci/spec_opts.go
  		Destination: "/etc/localtime",
  		Type:        "bind",
 -		Source:      "/etc/localtime",
-+		Source:      "@TERMUX_PREFIX@/etc/localtime",
++		Source:      "/data/docker/etc/localtime",
  		Options:     []string{"rbind", "ro"},
  	})
  	return nil
@@ -136,7 +136,7 @@ diff -uNr src.orig/moby/vendor/github.com/hashicorp/memberlist/config.go moby/ve
  		Keyring:   nil,
  
 -		DNSConfigPath: "/etc/resolv.conf",
-+		DNSConfigPath: "@TERMUX_PREFIX@/etc/resolv.conf",
++		DNSConfigPath: "/data/docker/etc/resolv.conf",
  
  		HandoffQueueDepth: 1024,
  		UDPBufferSize:     1400,

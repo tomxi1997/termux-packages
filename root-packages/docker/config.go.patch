@@ -13,7 +13,7 @@
  func getHomeDir() string {
  	if homeDir == "" {
 -		homeDir = homedir.Get()
-+		homeDir = "@TERMUX_HOME@"
++		homeDir = "/data/docker/.docker"
  	}
  	return homeDir
  }

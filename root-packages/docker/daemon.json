@@ -1,9 +1,30 @@
 {
-    "data-root": "@TERMUX_PREFIX@/lib/docker",
-    "exec-root": "@TERMUX_PREFIX@/var/run/docker",
-    "pidfile": "@TERMUX_PREFIX@/var/run/docker.pid",
+"registry-mirrors":[
+"https://docker.1panel.dev",
+"https://docker.1ms.run",
+"https://registry.docker-cn.com",
+"https://cr.laoyou.ip-ddns.com",
+"https://docker.1panelproxy.com",
+"https://docker.1panel.live",
+"https://hub.fast360.xyz",
+"https://dockerpull.cn",
+"https://docker.tbedu.top",
+"https://docker.m.daocloud.io",
+"https://hub.rat.dev",
+"https://docker.kejilion.pro",
+"https://docker.hlmirror.com",
+"https://docker.imgdb.de",
+"https://docker.melikeme.cn",
+"https://registry.dockermirror.com",
+"https://docker.cloudlayer.icu",
+"https://ccr.ccs.tencentyun.com",
+"https://pull.loridocker.com"
+		    ],
+    "data-root": "/data/docker/lib/docker",
+    "exec-root": "/data/docker/var/run/docker",
+    "pidfile": "/data/docker/var/run/docker.pid",
     "hosts": [
-        "unix://@TERMUX_PREFIX@/var/run/docker.sock"
+        "unix:///data/docker/var/run/docker.sock"
     ],
     "storage-driver": "overlay2"
 }

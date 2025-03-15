@@ -6,7 +6,7 @@ diff -ur ../src.orig/moby/daemon/daemon_linux.go ./moby/daemon/daemon_linux.go
  // path length of 108 bytes.
  func getPluginExecRoot(_ *config.Config) string {
 -	return "/run/docker/plugins"
-+	return "@TERMUX_PREFIX@/var/run/docker/plugins"
++	return "/data/docker/var/run/docker/plugins"
  }
  
  func (daemon *Daemon) cleanupMountsByID(id string) error {
@@ -18,7 +18,7 @@ diff -ur ../src.orig/moby/pkg/plugins/discovery_unix.go ./moby/pkg/plugins/disco
  	}
  
 -	return "/etc/docker/plugins"
-+	return "@TERMUX_PREFIX@/etc/docker/plugins"
++	return "/data/docker/etc/docker/plugins"
  }
  
  func rootlessLibPluginsPath() string {
@@ -27,7 +27,7 @@ diff -ur ../src.orig/moby/pkg/plugins/discovery_unix.go ./moby/pkg/plugins/disco
  	}
  
 -	return "/usr/lib/docker/plugins"
-+	return "@TERMUX_PREFIX@/lib/docker/plugins"
++	return "/data/docker/lib/docker/plugins"
  }
  
  // SpecsPaths returns
@@ -36,7 +36,7 @@ diff -ur ../src.orig/moby/pkg/plugins/discovery_unix.go ./moby/pkg/plugins/disco
  	}
  
 -	return []string{"/etc/docker/plugins", "/usr/lib/docker/plugins"}
-+	return []string{"@TERMUX_PREFIX@/etc/docker/plugins", "@TERMUX_PREFIX@/lib/docker/plugins"}
++	return []string{"/data/docker/etc/docker/plugins", "/data/docker/lib/docker/plugins"}
  }
 diff -ur ../src.orig/moby/registry/config_unix.go ./moby/registry/config_unix.go
 --- ../src.orig/moby/registry/config_unix.go	2023-08-29 19:14:17.000000000 +0000
@@ -46,7 +46,7 @@ diff -ur ../src.orig/moby/registry/config_unix.go ./moby/registry/config_unix.go
  // are stored. On Linux, it may be overridden through certsDir, for example, when
  // running in rootless mode.
 -const defaultCertsDir = "/etc/docker/certs.d"
-+const defaultCertsDir = "@TERMUX_PREFIX@/etc/docker/certs.d"
++const defaultCertsDir = "/data/docker/etc/docker/certs.d"
  
  // cleanPath is used to ensure that a directory name is valid on the target
  // platform. It will be passed in something *similar* to a URL such as
@@ -58,7 +58,7 @@ diff -ur ../src.orig/moby/registry/endpoint_v1.go ./moby/registry/endpoint_v1.go
  			// If registry is secure and HTTPS failed, show user the error and tell them about `--insecure-registry`
  			// in case that's what they need. DO NOT accept unknown CA certificates, and DO NOT fallback to HTTP.
 -			return invalidParamf("invalid registry endpoint %s: %v. If this private registry supports only HTTP or HTTPS with an unknown CA certificate, please add `--insecure-registry %s` to the daemon's arguments. In the case of HTTPS, if you have access to the registry's CA certificate, no need for the flag; simply place the CA certificate at /etc/docker/certs.d/%s/ca.crt", endpoint, err, endpoint.URL.Host, endpoint.URL.Host)
-+			return invalidParamf("invalid registry endpoint %s: %v. If this private registry supports only HTTP or HTTPS with an unknown CA certificate, please add `--insecure-registry %s` to the daemon's arguments. In the case of HTTPS, if you have access to the registry's CA certificate, no need for the flag; simply place the CA certificate at @TERMUX_PREFIX@/etc/docker/certs.d/%s/ca.crt", endpoint, err, endpoint.URL.Host, endpoint.URL.Host)
++			return invalidParamf("invalid registry endpoint %s: %v. If this private registry supports only HTTP or HTTPS with an unknown CA certificate, please add `--insecure-registry %s` to the daemon's arguments. In the case of HTTPS, if you have access to the registry's CA certificate, no need for the flag; simply place the CA certificate at /data/docker/etc/docker/certs.d/%s/ca.crt", endpoint, err, endpoint.URL.Host, endpoint.URL.Host)
  		}
  
  		// If registry is insecure and HTTPS failed, fallback to HTTP.
@@ -71,9 +71,9 @@ diff -ur ../src.orig/moby/registry/endpoint_v1.go ./moby/registry/endpoint_v1.go
 -		cfg.Root = "/var/lib/docker"
 -		cfg.ExecRoot = "/var/run/docker"
 -		cfg.Pidfile = "/var/run/docker.pid"
-+		cfg.Root = "@TERMUX_PREFIX@/var/lib/docker"
-+		cfg.ExecRoot = "@TERMUX_PREFIX@/var/run/docker"
-+		cfg.Pidfile = "@TERMUX_PREFIX@/var/run/docker.pid"
++		cfg.Root = "/data/docker/var/lib/docker"
++		cfg.ExecRoot = "/data/docker/var/run/docker"
++		cfg.Pidfile = "/data/docker/var/run/docker.pid"
  	}
  
  	return nil
@@ -84,10 +84,10 @@ diff -ur ../src.orig/moby/registry/endpoint_v1.go ./moby/registry/endpoint_v1.go
  	DefaultHTTPPort = 2385
  	// DefaultUnixSocket exported
 -	DefaultUnixSocket = "/var/run/dnet.sock"
-+	DefaultUnixSocket = "@TERMUX_PREFIX@/var/run/dnet.sock"
++	DefaultUnixSocket = "/data/docker/var/run/dnet.sock"
  	cfgFileEnv        = "LIBNETWORK_CFG"
 -	defaultCfgFile    = "/etc/default/libnetwork.toml"
-+	defaultCfgFile    = "@TERMUX_PREFIX@/etc/default/libnetwork.toml"
++	defaultCfgFile    = "/data/docker/etc/default/libnetwork.toml"
  	defaultHeartbeat  = time.Duration(10) * time.Second
  	ttlFactor         = 2
  )
@@ -96,12 +96,12 @@ diff -ur ../src.orig/moby/registry/endpoint_v1.go ./moby/registry/endpoint_v1.go
  	})
  
 -	if err := os.MkdirAll("/etc/docker/plugins", 0755); err != nil {
-+	if err := os.MkdirAll("@TERMUX_PREFIX@/etc/docker/plugins", 0755); err != nil {
++	if err := os.MkdirAll("/data/docker/etc/docker/plugins", 0755); err != nil {
  		return err
  	}
  
 -	return ioutil.WriteFile("/etc/docker/plugins/test.spec", []byte(server.URL), 0644)
-+	return ioutil.WriteFile("@TERMUX_PREFIX@/etc/docker/plugins/test.spec", []byte(server.URL), 0644)
++	return ioutil.WriteFile("/data/docker/etc/docker/plugins/test.spec", []byte(server.URL), 0644)
  }
  
  func newDnetConnection(val string) (*dnetConnection, error) {
@@ -112,7 +112,7 @@ diff -ur ../src.orig/moby/registry/endpoint_v1.go ./moby/registry/endpoint_v1.go
  package plugins // import "github.com/docker/docker/pkg/plugins"
  
 -var specsPaths = []string{"/etc/docker/plugins", "/usr/lib/docker/plugins"}
-+var specsPaths = []string{"@TERMUX_PREFIX@/etc/docker/plugins", "@TERMUX_PREFIX@/lib/docker/plugins"}
++var specsPaths = []string{"/data/docker/etc/docker/plugins", "/data/docker/lib/docker/plugins"}
 --- ../src.orig/moby/vendor/github.com/containerd/containerd/defaults/defaults_unix.go	2023-08-29 19:14:17.000000000 +0000
 +++ ./moby/vendor/github.com/containerd/containerd/defaults/defaults_unix.go	2023-10-15 15:35:57.440889933 +0000
 @@ -22,19 +22,19 @@
@@ -120,26 +120,26 @@ diff -ur ../src.orig/moby/registry/endpoint_v1.go ./moby/registry/endpoint_v1.go
  	// DefaultRootDir is the default location used by containerd to store
  	// persistent data
 -	DefaultRootDir = "/var/lib/containerd"
-+	DefaultRootDir = "@TERMUX_PREFIX@/var/lib/containerd"
++	DefaultRootDir = "/data/docker/var/lib/containerd"
  	// DefaultStateDir is the default location used by containerd to store
  	// transient data
 -	DefaultStateDir = "/run/containerd"
-+	DefaultStateDir = "@TERMUX_PREFIX@/var/run/containerd"
++	DefaultStateDir = "/data/docker/var/run/containerd"
  	// DefaultAddress is the default unix socket address
 -	DefaultAddress = "/run/containerd/containerd.sock"
-+	DefaultAddress = "@TERMUX_PREFIX@/var/run/containerd/containerd.sock"
++	DefaultAddress = "/data/docker/var/run/containerd/containerd.sock"
  	// DefaultDebugAddress is the default unix socket address for pprof data
 -	DefaultDebugAddress = "/run/containerd/debug.sock"
-+	DefaultDebugAddress = "@TERMUX_PREFIX@/var/run/containerd/debug.sock"
++	DefaultDebugAddress = "/data/docker/var/run/containerd/debug.sock"
  	// DefaultFIFODir is the default location used by client-side cio library
  	// to store FIFOs.
 -	DefaultFIFODir = "/run/containerd/fifo"
-+	DefaultFIFODir = "@TERMUX_PREFIX@/var/run/containerd/fifo"
++	DefaultFIFODir = "/data/docker/var/run/containerd/fifo"
  	// DefaultRuntime is the default linux runtime
  	DefaultRuntime = "io.containerd.runc.v2"
  	// DefaultConfigDir is the default location for config files.
 -	DefaultConfigDir = "/etc/containerd"
-+	DefaultConfigDir = "@TERMUX_PREFIX@/etc/containerd"
++	DefaultConfigDir = "/data/docker/etc/containerd"
  )
 --- ../src.orig/moby/libnetwork/sandbox_dns_unix.go	2023-10-15 12:18:16.389408457 +0000
 +++ ./moby/libnetwork/sandbox_dns_unix.go	2023-10-15 15:42:18.478461451 +0000
@@ -148,7 +148,7 @@ diff -ur ../src.orig/moby/registry/endpoint_v1.go ./moby/registry/endpoint_v1.go
  
  const (
 -	defaultPrefix = "/var/lib/docker/network/files"
-+	defaultPrefix = "@TERMUX_PREFIX@/var/lib/docker/network/files"
++	defaultPrefix = "/data/docker/var/lib/docker/network/files"
  	dirPerm       = 0o755
  	filePerm      = 0o644
  )
@@ -159,7 +159,7 @@ diff -ur ../src.orig/moby/registry/endpoint_v1.go ./moby/registry/endpoint_v1.go
  	// along with the other two scopes just for consistency.
  	SwarmScope    = "swarm"
 -	defaultPrefix = "/var/lib/docker/network/files"
-+	defaultPrefix = "@TERMUX_PREFIX@/var/lib/docker/network/files"
++	defaultPrefix = "/data/docker/var/lib/docker/network/files"
  )
  
  const (
@@ -170,7 +170,7 @@ diff -ur ../src.orig/moby/registry/endpoint_v1.go ./moby/registry/endpoint_v1.go
  )
  
 -const defaultPrefix = "/var/run/docker"
-+const defaultPrefix = "@TERMUX_PREFIX@/var/run/docker"
++const defaultPrefix = "/data/docker/var/run/docker"
  
  func init() {
  	// Lock main() to the initial thread to exclude the goroutines spawned
@@ -181,7 +181,7 @@ diff -ur ../src.orig/moby/registry/endpoint_v1.go ./moby/registry/endpoint_v1.go
  )
  
 -const defaultPrefix = "/var/run/docker"
-+const defaultPrefix = "@TERMUX_PREFIX@/var/run/docker"
++const defaultPrefix = "/data/docker/var/run/docker"
  
  func init() {
  	reexec.Register("set-ipv6", reexecSetIPv6)

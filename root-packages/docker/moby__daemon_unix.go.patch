@@ -6,7 +6,7 @@ diff -uNr ./moby-24.0.6.orig/cmd/dockerd/daemon_unix.go ./moby/cmd/dockerd/daemo
  func getDefaultDaemonConfigDir() (string, error) {
  	if !honorXDG {
 -		return "/etc/docker", nil
-+		return "@TERMUX_PREFIX@/etc/docker", nil
++		return "/data/docker/etc/docker", nil
  	}
  	// NOTE: CLI uses ~/.docker while the daemon uses ~/.config/docker, because
  	// ~/.docker was not designed to store daemon configurations.

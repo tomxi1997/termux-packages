@@ -5,5 +5,5 @@
  var defaultSystemPluginDirs = []string{
 -	"/usr/local/lib/docker/cli-plugins", "/usr/local/libexec/docker/cli-plugins",
 -	"/usr/lib/docker/cli-plugins", "/usr/libexec/docker/cli-plugins",
-+	"@TERMUX_PREFIX@/lib/docker/cli-plugins", "@TERMUX_PREFIX@/libexec/docker/cli-plugins",
++	"/data/docker/lib/docker/cli-plugins", "/data/docker/libexec/docker/cli-plugins",
  }

@@ -1,4 +1,4 @@
-#!@TERMUX_PREFIX@/bin/bash
+#!/bin/sh
 
 export PATH="${PATH}:/system/xbin:/system/bin"
 opts='rw,nosuid,nodev,noexec,relatime'
@@ -26,4 +26,4 @@ for cg in ${cgroups}; do
 done
 
 # start the docker daemon
-"@TERMUX_PREFIX@/libexec/dockerd" $@
+"/data/docker/libexec/dockerd" $@
