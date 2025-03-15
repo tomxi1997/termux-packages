@@ -14,12 +14,12 @@ TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 --enable-pkgconfig
 --disable-selinux
---with-default-system-dir=/data/docker/etc/lvm
---with-default-pid-dir=/data/docker/var/run
+--with-default-system-dir=$TERMUX_PREFIX/etc/lvm
+--with-default-pid-dir=$TERMUX_PREFIX/var/run
 --with-default-profile-subdir=profile.d
---with-default-run-dir=/data/docker/var/run
---with-default-locking-dir=/data/docker/var/run/lock/lvm
---with-confdir=/data/docker/etc
+--with-default-run-dir=$TERMUX_PREFIX/var/run
+--with-default-locking-dir=$TERMUX_PREFIX/var/run/lock/lvm
+--with-confdir=$TERMUX_PREFIX/etc
 --with-symvers=no
 "
 
