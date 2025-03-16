@@ -6,7 +6,7 @@ diff -uNr lxc-3.1.0/templates/lxc-local.in lxc-3.1.0.mod/templates/lxc-local.in
  # Create temporary directory to
  if ! command -V mktemp >/dev/null 2>&1; then
 -  LOCAL_TEMP=/tmp/lxc-local.$$
-+  LOCAL_TEMP=@TERMUX_PREFIX@/tmp/lxc-local.$$
++  LOCAL_TEMP=/data/lxc3/tmp/lxc-local.$$
    mkdir -p "${LOCAL_TEMP}"
  else
    LOCAL_TEMP=$(mktemp -d)
