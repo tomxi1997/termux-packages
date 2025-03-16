@@ -15,12 +15,18 @@ TERMUX_PKG_REPLACES="lxc-dev"
 
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 --with-distro=termux
---with-runtime-path=$TERMUX_PREFIX/var/run
+--with-init-script=sysvinit
+--enable-static
+--disable-shared
+--with-runtime-path=/data/lxc3/var/run
 --disable-apparmor
 --disable-selinux
---enable-seccomp
---enable-capabilities
+--disable-seccomp
+--disable-capabilities
 --disable-examples
+--disable-gnutls
+--with-pic
+--with-log-path=/data/lxc3/log
 --disable-werror
 "
 
