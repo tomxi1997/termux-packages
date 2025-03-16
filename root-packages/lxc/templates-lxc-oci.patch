@@ -6,7 +6,7 @@ diff -uNr lxc-3.1.0/templates/lxc-oci.in lxc-3.1.0.mod/templates/lxc-oci.in
    fi
  else
 -  DOWNLOAD_BASE=/tmp
-+  DOWNLOAD_BASE=@TERMUX_PREFIX@/tmp
++  DOWNLOAD_BASE=/data/lxc3/tmp
  fi
  mkdir -p "${DOWNLOAD_BASE}"
 
