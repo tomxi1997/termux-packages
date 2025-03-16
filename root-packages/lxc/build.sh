@@ -32,6 +32,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 
 termux_step_post_make_install() {
 	# Simple helper script for mounting cgroups.
+        touch /data/data/com.termux/files/usr/lib/liblxc.so
 	install -Dm755 "$TERMUX_PKG_BUILDER_DIR"/lxc-setup-cgroups.sh \
 		"$TERMUX_PREFIX"/bin/lxc-setup-cgroups
 	sed -i "s|@TERMUX_PREFIX@|$TERMUX_PREFIX|" "$TERMUX_PREFIX"/bin/lxc-setup-cgroups
