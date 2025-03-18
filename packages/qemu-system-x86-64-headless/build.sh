@@ -78,14 +78,14 @@ termux_step_configure() {
 	# flags already passed by build scripts but we do not want to
 	# override them with what QEMU configure provides.
 	./configure \
-		--prefix="$TERMUX_PREFIX" \
+		--prefix="/data/qemu8" \
 		--cross-prefix="${TERMUX_HOST_PLATFORM}-" \
 		--host-cc="gcc" \
 		--cc="$CC" \
 		--cxx="$CXX" \
 		--objcc="$CC" \
 		--disable-stack-protector \
-		--smbd="$TERMUX_PREFIX/bin/smbd" \
+		--smbd="/data/qemu8/bin/smbd" \
 		--enable-coroutine-pool \
 		--audio-drv-list=pa \
 		--enable-trace-backends=nop \
