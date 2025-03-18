@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - master
+    - qemu-system-x86-64-headless
     - dev
     - 'dev/**'
     paths:
