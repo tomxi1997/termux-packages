@@ -112,7 +112,6 @@ termux_step_configure() {
 		--enable-vhdx \
 		--enable-qcow1 \
 		--enable-vvfat \
-		--enable-vmnet \
 		--with-pkgversion="tomxi1997@gmail.com" \
 		--target-list="$QEMU_TARGETS"
 }
