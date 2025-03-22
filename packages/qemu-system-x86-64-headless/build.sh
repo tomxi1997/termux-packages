@@ -107,6 +107,8 @@ termux_step_configure() {
 		--enable-spice \
 		--enable-libusb \
 		--enable-usb-redir \
+		--disable-vhost-user \
+		--disable-vhost-user-blk-server \
 		--enable-lto \
 		--enable-strip \
 		--enable-vhdx \
