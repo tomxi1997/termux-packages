@@ -49,26 +49,8 @@ termux_step_configure() {
 	local QEMU_TARGETS=""
 
 	# System emulation.
-	QEMU_TARGETS+="aarch64-softmmu,"
-	QEMU_TARGETS+="arm-softmmu,"
 	QEMU_TARGETS+="i386-softmmu,"
-	QEMU_TARGETS+="m68k-softmmu,"
-	QEMU_TARGETS+="ppc64-softmmu,"
-	QEMU_TARGETS+="ppc-softmmu,"
-	QEMU_TARGETS+="riscv32-softmmu,"
-	QEMU_TARGETS+="riscv64-softmmu,"
 	QEMU_TARGETS+="x86_64-softmmu,"
-
-	# User mode emulation.
-	QEMU_TARGETS+="aarch64-linux-user,"
-	QEMU_TARGETS+="arm-linux-user,"
-	QEMU_TARGETS+="i386-linux-user,"
-	QEMU_TARGETS+="m68k-linux-user,"
-	QEMU_TARGETS+="ppc64-linux-user,"
-	QEMU_TARGETS+="ppc-linux-user,"
-	QEMU_TARGETS+="riscv32-linux-user,"
-	QEMU_TARGETS+="riscv64-linux-user,"
-	QEMU_TARGETS+="x86_64-linux-user"
 
 	CFLAGS+=" $CPPFLAGS"
 	CXXFLAGS+=" $CPPFLAGS"
@@ -107,7 +89,6 @@ termux_step_configure() {
 		--enable-virtfs \
 		--enable-curl \
 		--enable-fdt=system \
-		--enable-kvm \
 		--disable-hvf \
 		--disable-whpx \
 		--enable-libnfs \
@@ -126,8 +107,13 @@ termux_step_configure() {
 		--enable-spice \
 		--enable-libusb \
 		--enable-usb-redir \
-		--disable-vhost-user \
-		--disable-vhost-user-blk-server \
+		--enable-lto \
+		--enable-strip \
+		--enable-vhdx \
+		--enable-qcow1 \
+		--enable-vvfat \
+		--enable-vmnet \
+		--with-pkgversion="tomxi1997@gmail.com"
 		--target-list="$QEMU_TARGETS"
 }
 
