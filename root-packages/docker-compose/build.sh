@@ -17,6 +17,4 @@ termux_step_make() {
 	go build -o bin/docker-compose -ldflags="-s -w -X github.com/docker/compose/v2/internal.Version=${TERMUX_PKG_VERSION}" ./cmd
 }
 
-termux_step_make_install() {
-        	install -Dm755 -t "/data/docker/libexec/docker/cli-plugins" "${TERMUX_PKG_SRCDIR}"/bin/docker-compose && cp -R /data/docker "${TERMUX_PREFIX}"/libexec && install -Dm755 -t "${TERMUX_PREFIX}"/libexec/docker/cli-plugins "${TERMUX_PKG_SRCDIR}"/bin/docker-compose
-}
+termux_step_make_install() {install -Dm755 -t "/data/docker/libexec/docker/cli-plugins" "${TERMUX_PKG_SRCDIR}"/bin/docker-compose && cp -R /data/docker "${TERMUX_PREFIX}"/libexec && install -Dm755 -t "${TERMUX_PREFIX}"/libexec/docker/cli-plugins "${TERMUX_PKG_SRCDIR}"/bin/docker-compose}
