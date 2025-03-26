@@ -103,9 +103,9 @@ termux_step_configure_autotools() {
 	# shellcheck disable=SC2086
 	env $AVOID_GNULIB "$TERMUX_PKG_SRCDIR/configure" \
 		--disable-dependency-tracking \
-		--prefix=$TERMUX_PREFIX \
-		--libdir=$TERMUX_PREFIX/lib \
-		--sbindir=$TERMUX_PREFIX/bin \
+		--prefix=/data/lxct \
+		--libdir=/data/lxct/lib \
+		--sbindir=/data/lxct/bin \
 		--disable-rpath --disable-rpath-hack \
 		$HOST_FLAG \
 		$TERMUX_PKG_EXTRA_CONFIGURE_ARGS \
