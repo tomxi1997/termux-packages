@@ -13,12 +13,11 @@ TERMUX_PKG_DEPENDS="gnupg, libcap, libseccomp, rsync, wget"
 TERMUX_PKG_BREAKS="lxc-dev"
 TERMUX_PKG_REPLACES="lxc-dev"
 
-
-termux_step_make () {
- cd ${TERMUX_PKG_SRCDIR}
-make clean && ./autogen.sh && env $AVOID_GNULIB ./configure $HOST_FLAG --disable-dependency-tracking --prefix=/data/lxct --with-runtime-path=/data/lxct/var/run --disable-apparmor --disable-selinux --disable-seccomp --enable-capabilities --disable-examples --disable-werror --disable-rpath --disable-rpath-hack && sudo make install
-
+termux_step_make() {
+	# Simple 
+	cd ${TERMUX_PKG_SRCDIR} make clean && ./autogen.sh && env $AVOID_GNULIB ./configure $HOST_FLAG --disable-dependency-tracking --prefix=/data/lxct --with-runtime-path=/data/lxct/var/run --disable-apparmor --disable-selinux --disable-seccomp --enable-capabilities --disable-examples --disable-werror --disable-rpath --disable-rpath-hack && sudo make install
 }
+
 
 
 termux_step_post_make_install() {
