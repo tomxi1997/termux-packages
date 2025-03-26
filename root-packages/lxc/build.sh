@@ -14,7 +14,6 @@ TERMUX_PKG_BREAKS="lxc-dev"
 TERMUX_PKG_REPLACES="lxc-dev"
 
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
---prefix=/data/lxct
 --with-distro=termux
 --with-runtime-path=/data/lxct/var/run
 --disable-apparmor
