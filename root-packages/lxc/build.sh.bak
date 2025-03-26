@@ -13,17 +13,20 @@ TERMUX_PKG_DEPENDS="gnupg, libcap, libseccomp, rsync, wget"
 TERMUX_PKG_BREAKS="lxc-dev"
 TERMUX_PKG_REPLACES="lxc-dev"
 
-
-termux_step_make () {
- cd ${TERMUX_PKG_SRCDIR}
-make clean && ./autogen.sh && env $AVOID_GNULIB ./configure $HOST_FLAG --disable-dependency-tracking --prefix=/data/lxct --with-runtime-path=/data/lxct/var/run --disable-apparmor --disable-selinux --disable-seccomp --enable-capabilities --disable-examples --disable-werror --disable-rpath --disable-rpath-hack && sudo make install
-
-}
-
+TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
+--with-distro=termux
+--with-runtime-path=/data/lxct/var/run
+--disable-apparmor
+--disable-selinux
+--enable-seccomp
+--enable-capabilities
+--disable-examples
+--disable-werror
+"
 
 termux_step_post_make_install() {
 	# Simple helper script for mounting cgroups.
 	install -Dm755 "$TERMUX_PKG_BUILDER_DIR"/lxc-setup-cgroups.sh \
 		"$TERMUX_PREFIX"/bin/lxc-setup-cgroups
-	sed -i "s|@TERMUX_PREFIX@|$TERMUX_PREFIX|" "$TERMUX_PREFIX"/bin/lxc-setup-cgroups && sudo cp /data/lxct "$TERMUX_PREFIX"
+	sed -i "s|@TERMUX_PREFIX@|$TERMUX_PREFIX|" "$TERMUX_PREFIX"/bin/lxc-setup-cgroups
 }
