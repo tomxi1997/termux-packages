@@ -1,0 +1,76 @@
+diff --git a/driver/docker-container/driver.go b/driver/docker-container/driver.go
+index 45f77b3..f485a28 100644
+--- a/driver/docker-container/driver.go
++++ b/driver/docker-container/driver.go
+@@ -527,7 +527,7 @@ func getBuildkitFlags(initConfig driver.InitConfig) []string {
+ 		// This should be appended before the user-specified arguments
+ 		// so that this option could be overwritten by the user.
+ 		newFlags := make([]string, 0, len(flags)+2)
+-		newFlags = append(newFlags, "--config", path.Join("/etc/buildkit", buildkitdConfigFile))
++		newFlags = append(newFlags, "--config", path.Join("@TERMUX_PREFIX@/etc/buildkit", buildkitdConfigFile))
+ 		flags = append(newFlags, flags...)
+ 	}
+ 	return flags
+diff --git a/util/confutil/container.go b/util/confutil/container.go
+index 5003cd7..7ddc8c5 100644
+--- a/util/confutil/container.go
++++ b/util/confutil/container.go
+@@ -16,8 +16,8 @@ const (
+ 	// where buildkitd inside the container stores its state. Some drivers
+ 	// create a Linux container, so this should match the location for Linux,
+ 	// as defined in: https://github.com/moby/buildkit/blob/v0.9.0/util/appdefaults/appdefaults_unix.go#L11-L15
+-	DefaultBuildKitStateDir  = "/var/lib/buildkit"
+-	DefaultBuildKitConfigDir = "/etc/buildkit"
++	DefaultBuildKitStateDir  = "@TERMUX_PREFIX@/lib/buildkit"
++	DefaultBuildKitConfigDir = "@TERMUX_PREFIX@/etc/buildkit"
+ )
+ 
+ var reInvalidCertsDir = regexp.MustCompile(`[^a-zA-Z0-9.-]+`)
+diff --git a/vendor/github.com/docker/docker/client/client_unix.go b/vendor/github.com/docker/docker/client/client_unix.go
+index 9fe78ea..01c2315 100644
+--- a/vendor/github.com/docker/docker/client/client_unix.go
++++ b/vendor/github.com/docker/docker/client/client_unix.go
+@@ -4,4 +4,4 @@ package client // import "github.com/docker/docker/client"
+ 
+ // DefaultDockerHost defines OS-specific default host if the DOCKER_HOST
+ // (EnvOverrideHost) environment variable is unset or empty.
+-const DefaultDockerHost = "unix:///var/run/docker.sock"
++const DefaultDockerHost = "unix://@TERMUX_PREFIX@/run/docker.sock"
+diff --git a/vendor/github.com/moby/buildkit/util/appdefaults/appdefaults_unix.go b/vendor/github.com/moby/buildkit/util/appdefaults/appdefaults_unix.go
+index a351a79..3f7054b 100644
+--- a/vendor/github.com/moby/buildkit/util/appdefaults/appdefaults_unix.go
++++ b/vendor/github.com/moby/buildkit/util/appdefaults/appdefaults_unix.go
+@@ -9,15 +9,15 @@ import (
+ )
+ 
+ const (
+-	Root                 = "/var/lib/buildkit"
+-	ConfigDir            = "/etc/buildkit"
+-	DefaultCNIBinDir     = "/opt/cni/bin"
+-	DefaultCNIConfigPath = "/etc/buildkit/cni.json"
++	Root                 = "@TERMUX_PREFIX@/lib/buildkit"
++	ConfigDir            = "@TERMUX_PREFIX@/etc/buildkit"
++	DefaultCNIBinDir     = "@TERMUX_PREFIX@/opt/cni/bin"
++	DefaultCNIConfigPath = "@TERMUX_PREFIX@/etc/buildkit/cni.json"
+ )
+ 
+ var (
+ 	UserCNIConfigPath = filepath.Join(UserConfigDir(), "cni.json")
+-	CDISpecDirs       = []string{"/etc/cdi", "/var/run/cdi", "/etc/buildkit/cdi"}
++	CDISpecDirs       = []string{"@TERMUX_PREFIX@/etc/cdi", "@TERMUX_PREFIX@/run/cdi", "@TERMUX_PREFIX@/etc/buildkit/cdi"}
+ )
+ 
+ // UserAddress typically returns /run/user/$UID/buildkit/buildkitd.sock
+diff --git a/vendor/github.com/moby/buildkit/util/appdefaults/appdefaults_unix_nolinux.go b/vendor/github.com/moby/buildkit/util/appdefaults/appdefaults_unix_nolinux.go
+index 943c247..cc03b15 100644
+--- a/vendor/github.com/moby/buildkit/util/appdefaults/appdefaults_unix_nolinux.go
++++ b/vendor/github.com/moby/buildkit/util/appdefaults/appdefaults_unix_nolinux.go
+@@ -3,6 +3,6 @@
+ package appdefaults
+ 
+ const (
+-	Address         = "unix:///var/run/buildkit/buildkitd.sock"
+-	traceSocketPath = "/var/run/buildkit/otel-grpc.sock"
++	Address         = "unix://@TERMUX_PREFIX@/run/buildkit/buildkitd.sock"
++	traceSocketPath = "@TERMUX_PREFIX@/run/buildkit/otel-grpc.sock"
+ )
