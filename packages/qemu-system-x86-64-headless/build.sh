@@ -18,6 +18,7 @@ TERMUX_PKG_BUILD_IN_SRC=true
 
 termux_step_pre_configure() {
 	# Workaround for https://github.com/termux/termux-packages/issues/12261.
+        sudo apt-get install tk-dev -y
 	if [ $TERMUX_ARCH = "aarch64" ]; then
 		rm -f $TERMUX_PKG_BUILDDIR/_lib
 		mkdir -p $TERMUX_PKG_BUILDDIR/_lib
