@@ -9,7 +9,7 @@
 # exit 0
 
 create_swapfile() {
-	sudo fallocate -l 4G /swapfile
+	sudo fallocate -l 8G /swapfile
 	sudo chmod 600 /swapfile
 	sudo mkswap /swapfile
 	sudo swapon /swapfile
@@ -47,15 +47,9 @@ else
 
 	# Directories
 	sudo rm -fr /opt/ghc /opt/hostedtoolcache /usr/share/dotnet /usr/share/swift
-	sudo rm -rf /usr/local/graalvm/
-	sudo rm -rf /usr/local/.ghcup/
-	sudo rm -rf /usr/local/share/powershell
-	sudo rm -rf /usr/local/share/chromium
-	sudo rm -rf /usr/local/lib/node_modules
-	# sudo rm -rf /usr/local/lib/android
+	sudo rm -rf /usr/local
 
 	# https://github.com/actions/runner-images/issues/709#issuecomment-612569242
-	sudo rm -rf "/usr/local/share/boost"
 	sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
 	# We shouldn't remove docker & it's images when running from `package_updates` workflow.

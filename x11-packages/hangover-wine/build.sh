@@ -3,17 +3,18 @@ TERMUX_PKG_DESCRIPTION="A compatibility layer for running Windows programs (Hang
 TERMUX_PKG_LICENSE="LGPL-2.1"
 TERMUX_PKG_LICENSE_FILE="LICENSE, LICENSE.OLD, COPYING.LIB"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="10.6.1"
+TERMUX_PKG_VERSION="10.11"
+TERMUX_PKG_REVISION=4
 _REAL_VERSION="${TERMUX_PKG_VERSION/\~/-}"
 TERMUX_PKG_SRCURL=(
 	https://github.com/AndreRH/wine/archive/refs/tags/hangover-$_REAL_VERSION.tar.gz
 	https://github.com/AndreRH/hangover/releases/download/hangover-$_REAL_VERSION/hangover_${_REAL_VERSION}_ubuntu2004_focal_arm64.tar
 )
 TERMUX_PKG_SHA256=(
-	0bb5700563dd62513f6fe402479e6f6599b294bc5cbde83baf397274cdce44ab
-	ffe43c278e371be38fe292c820db9903219196b38742744208f09519d6244da3
+	bbe08ba3f405e79a8d5e57472b4d0c7941e113188c05827344c37776b9d6b30a
+	4f55f924c54a01c07ea3fe08ac6c4171d874d3f070ef4aac2bed5fb4458fadea
 )
-TERMUX_PKG_DEPENDS="fontconfig, freetype, krb5, libandroid-spawn, libc++, libgmp, libgnutls, libxcb, libxcomposite, libxcursor, libxfixes, libxrender, mesa, opengl, pulseaudio, sdl2, vulkan-loader, xorg-xrandr"
+TERMUX_PKG_DEPENDS="fontconfig, freetype, krb5, libandroid-spawn, libc++, libgmp, libgnutls, libxcb, libxcomposite, libxcursor, libxfixes, libxrender, opengl, pulseaudio, sdl2, vulkan-loader, xorg-xrandr"
 TERMUX_PKG_ANTI_BUILD_DEPENDS="vulkan-loader"
 TERMUX_PKG_BUILD_DEPENDS="libandroid-spawn-static, vulkan-loader-generic"
 TERMUX_PKG_NO_STATICSPLIT=true
@@ -27,7 +28,9 @@ TERMUX_PKG_EXTRA_HOSTBUILD_CONFIGURE_ARGS="
 --disable-tests
 "
 
+# Disable userfaultfd syscall as it is missing on older Android, see #25015
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
+ac_cv_header_linux_userfaultfd_h=no
 enable_wineandroid_drv=no
 enable_tools=yes
 --prefix=$TERMUX_PREFIX/opt/hangover-wine
@@ -41,6 +44,7 @@ enable_tools=yes
 --without-coreaudio
 --without-cups
 --without-dbus
+--without-ffmpeg
 --with-fontconfig
 --with-freetype
 --without-gettext
@@ -54,9 +58,10 @@ enable_tools=yes
 --without-netapi
 --without-opencl
 --with-opengl
---with-osmesa
+--without-osmesa
 --without-oss
 --without-pcap
+--without-pcsclite
 --with-pthread
 --with-pulse
 --without-sane
@@ -168,15 +173,15 @@ EOF
 termux_step_post_make_install() {
 	# Install FEX-based dlls
 	local _type
-	for _type in wow64fex arm64ecfex; do
+	for _type in wowbox64 libwow64fex libarm64ecfex; do
 		mkdir -p $_type
 		cd $_type
-		ar -x "$TERMUX_PKG_SRCDIR"/hangover-lib${_type}_${_REAL_VERSION}_arm64.deb
+		ar -x "$TERMUX_PKG_SRCDIR"/hangover-${_type}_${_REAL_VERSION}_arm64.deb
 		tar xf data.tar.xz
-		install -Dm644 usr/lib/wine/aarch64-windows/lib$_type.dll \
-			"$TERMUX_PREFIX"/opt/hangover-wine/lib/wine/aarch64-windows/lib$_type.dll
-		install -Dm644 usr/share/doc/hangover-lib$_type/copyright \
-			"$TERMUX_PREFIX"/share/doc/hangover-lib$_type/copyright
+		install -Dm644 usr/lib/wine/aarch64-windows/$_type.dll \
+			"$TERMUX_PREFIX"/opt/hangover-wine/lib/wine/aarch64-windows/$_type.dll
+		install -Dm644 usr/share/doc/hangover-$_type/copyright \
+			"$TERMUX_PREFIX"/share/doc/hangover-$_type/copyright
 		cd -
 	done
 

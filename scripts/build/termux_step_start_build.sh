@@ -5,9 +5,12 @@ termux_step_start_build() {
 	TERMUX_HOSTBUILD_MARKER="$TERMUX_PKG_HOSTBUILD_DIR/TERMUX_BUILT_FOR_$TERMUX_PKG_VERSION"
 
 	if [ "$TERMUX_PKG_METAPACKAGE" = "true" ]; then
-		# Metapackage has no sources and therefore platform-independent.
+		# Metapackage has no sources
 		TERMUX_PKG_SKIP_SRC_EXTRACT=true
-		TERMUX_PKG_PLATFORM_INDEPENDENT=true
+		# Usually metapackages are also platform dependent but it is not always the
+		# right decision to mark them as such when they depend on packages which may
+		# not be available for all architectures
+		# TERMUX_PKG_PLATFORM_INDEPENDENT=true
 	fi
 
 	if [ -n "${TERMUX_PKG_EXCLUDED_ARCHES:=""}" ] && [ "$TERMUX_PKG_EXCLUDED_ARCHES" != "${TERMUX_PKG_EXCLUDED_ARCHES/$TERMUX_ARCH/}" ]; then
@@ -62,15 +65,25 @@ termux_step_start_build() {
 		fi
 	fi
 
+	if [ "$TERMUX_ON_DEVICE_BUILD" = "true" ] || [ "$TERMUX_ARCH_BITS" = "32" ]; then
+		TERMUX_PKG_BUILD_MULTILIB=false
+	fi
+	if [ "$TERMUX_PKG_BUILD_MULTILIB" = "true" ] && [ $(tr ' ' '\n' <<< "${TERMUX_PKG_EXCLUDED_ARCHES//,/}" | grep -c -e '^arm$' -e '^i686$') = "2" ]; then
+		TERMUX_PKG_BUILD_ONLY_MULTILIB=true
+	fi
+
 	echo "termux - building $TERMUX_PKG_NAME for arch $TERMUX_ARCH..."
 	test -t 1 && printf "\033]0;%s...\007" "$TERMUX_PKG_NAME"
 
 	# Avoid exporting PKG_CONFIG_LIBDIR until after termux_step_host_build.
-	export TERMUX_PKG_CONFIG_LIBDIR=$TERMUX_PREFIX/lib/pkgconfig:$TERMUX_PREFIX/share/pkgconfig
+	termux_step_setup_pkg_config_libdir
 
 	local TERMUX_PKG_BUILDDIR_ORIG="$TERMUX_PKG_BUILDDIR"
 	if [ "$TERMUX_PKG_BUILD_IN_SRC" = "true" ]; then
 		TERMUX_PKG_BUILDDIR=$TERMUX_PKG_SRCDIR
+	fi
+	if [ "$TERMUX_PKG_BUILD_MULTILIB" = "true" ] && [ "$TERMUX_PKG_BUILD_ONLY_MULTILIB" = "false" ] && ([ "$TERMUX_PKG_BUILD_IN_SRC" = "true" ] || [ "$TERMUX_PKG_MULTILIB_BUILDDIR" = "$TERMUX_PKG_BUILDDIR" ]); then
+		termux_error_exit "It is not possible to build 32-bit and 64-bit versions of a package in one place, the build location must be separate."
 	fi
 
 	if [ "$TERMUX_CONTINUE_BUILD" == "true" ]; then
@@ -127,4 +140,8 @@ termux_step_start_build() {
 			fi
 		done
 	fi
+}
+
+termux_step_setup_pkg_config_libdir() {
+	export TERMUX_PKG_CONFIG_LIBDIR=$TERMUX__PREFIX__LIB_DIR/pkgconfig:$TERMUX_PREFIX/share/pkgconfig
 }

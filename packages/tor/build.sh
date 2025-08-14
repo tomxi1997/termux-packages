@@ -2,9 +2,9 @@ TERMUX_PKG_HOMEPAGE=https://www.torproject.org
 TERMUX_PKG_DESCRIPTION="The Onion Router anonymizing overlay network"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="0.4.8.16"
+TERMUX_PKG_VERSION="0.4.8.17"
 TERMUX_PKG_SRCURL=https://www.torproject.org/dist/tor-$TERMUX_PKG_VERSION.tar.gz
-TERMUX_PKG_SHA256=6540dd377a120fb8e7d27530aa3b7ff72a0fa5b4f670fe1d64c987c1cfd390cb
+TERMUX_PKG_SHA256=79b4725e1d4b887b9e68fd09b0d2243777d5ce3cd471e538583bcf6f9d8cdb56
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_DEPENDS="libevent, liblzma, openssl, resolv-conf, zlib"
 TERMUX_PKG_BUILD_DEPENDS="libandroid-glob"
@@ -13,7 +13,14 @@ TERMUX_PKG_BUILD_DEPENDS="libandroid-glob"
 # helpful in our case. Although it would be good to go through the source and
 # ensure that in future there is not any other Android specific behaviour which
 # affects security/anonymity.
-TERMUX_PKG_EXTRA_CONFIGURE_ARGS="--disable-zstd --disable-unittests"
+# without --disable-seccomp, tor would automatically enable seccomp if libseccomp was
+# previously installed in $TERMUX_PREFIX and fail with:
+# src/lib/sandbox/sandbox.c:890:32: error: use of undeclared identifier 'PF_FILE'
+TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
+--disable-zstd
+--disable-unittests
+--disable-seccomp
+"
 TERMUX_PKG_CONFFILES="etc/tor/torrc"
 TERMUX_PKG_SERVICE_SCRIPT=("tor" 'exec tor 2>&1')
 

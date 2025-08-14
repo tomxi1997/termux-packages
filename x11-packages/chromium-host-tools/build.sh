@@ -2,10 +2,10 @@ TERMUX_PKG_HOMEPAGE=https://www.chromium.org/Home
 TERMUX_PKG_DESCRIPTION="Chromium web browser (Host tools)"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="@licy183"
-TERMUX_PKG_VERSION=136.0.7103.92
+TERMUX_PKG_VERSION=139.0.7258.66
 TERMUX_PKG_SRCURL=https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$TERMUX_PKG_VERSION.tar.xz
-TERMUX_PKG_SHA256=3fa7f88ef186566948367bf1e9a9f0612e753fc69285c1654728f6a015cd4cf2
-TERMUX_PKG_DEPENDS="atk, cups, dbus, fontconfig, gtk3, krb5, libc++, libdrm, libevdev, libxkbcommon, libminizip, libnss, libx11, mesa, openssl, pango, pulseaudio, zlib"
+TERMUX_PKG_SHA256=5abd8ab0189d686789f7c7c61c98800a9962b79c12305bdec0d16fc76929fcb7
+TERMUX_PKG_DEPENDS="atk, cups, dbus, fontconfig, gtk3, krb5, libc++, libevdev, libxkbcommon, libminizip, libnss, libx11, mesa, openssl, pango, pulseaudio, zlib"
 TERMUX_PKG_BUILD_DEPENDS="libffi-static"
 # TODO: Split chromium-common and chromium-headless
 # TERMUX_PKG_DEPENDS+=", chromium-common"
@@ -14,6 +14,7 @@ TERMUX_PKG_BUILD_DEPENDS="libffi-static"
 TERMUX_PKG_EXCLUDED_ARCHES="i686"
 TERMUX_PKG_NO_STRIP=true
 TERMUX_PKG_NO_ELF_CLEANER=true
+TERMUX_PKG_ON_DEVICE_BUILD_NOT_SUPPORTED=true
 
 SYSTEM_LIBRARIES="    fontconfig"
 # TERMUX_PKG_DEPENDS="fontconfig"
@@ -23,14 +24,14 @@ termux_step_post_get_source() {
 	local f
 	for f in $(find "$TERMUX_PKG_BUILDER_DIR/cr-patches" -maxdepth 1 -type f -name *.patch | sort); do
 		echo "Applying patch: $(basename $f)"
-		patch -p1 < "$f"
+		patch -p1 --silent < "$f"
 	done
 
 	# Apply patches for jumbo build
 	local f
 	for f in $(find "$TERMUX_PKG_BUILDER_DIR/jumbo-patches" -maxdepth 1 -type f -name *.patch | sort); do
 		echo "Applying patch: $(basename $f)"
-		patch -p1 < "$f"
+		patch -p1 --silent < "$f"
 	done
 
 	# Use some system libs
@@ -39,14 +40,6 @@ termux_step_post_get_source() {
 
 	# Remove the source file to keep more space
 	rm -f "$TERMUX_PKG_CACHEDIR/chromium-$TERMUX_PKG_VERSION.tar.xz"
-}
-
-termux_step_pre_configure() {
-	# Certain packages are not safe to build on device because their
-	# build.sh script deletes specific files in $TERMUX_PREFIX.
-	if $TERMUX_ON_DEVICE_BUILD; then
-		termux_error_exit "Package '$TERMUX_PKG_NAME' is not safe for on-device builds."
-	fi
 }
 
 termux_step_configure() {
@@ -184,8 +177,6 @@ chrome_pgo_phase = 0
 treat_warnings_as_errors = false
 # Use system libraries as little as possible
 use_system_freetype = false
-# use_system_libdrm = true
-use_system_libffi = false
 use_custom_libcxx = false
 use_custom_libcxx_for_host = true
 use_allocator_shim = false
@@ -219,12 +210,13 @@ use_alsa = false
 use_pulseaudio = true
 rtc_use_pipewire = false
 use_vaapi = false
-# See comments below
-enable_nacl = false
 # Host compiler (clang-13) doesn't support LTO well
 is_cfi = false
 use_cfi_icall = false
 use_thin_lto = false
+# OpenCL doesn't work out of box in Termux, use NNAPI instead
+build_tflite_with_opencl = false
+build_tflite_with_nnapi = true
 # Enable rust
 custom_target_rust_abi_target = \"$CARGO_TARGET_NAME\"
 llvm_android_mainline = true
@@ -305,6 +297,9 @@ termux_step_make() {
 	time ninja -C out/Release \
 						third_party/pdfium \
 						third_party/pdfium:pdfium_public_headers
+
+	# # Build other components
+	# ninja -C out/Release chromedriver chrome chrome_crashpad_handler headless_shell
 }
 
 termux_step_make_install() {

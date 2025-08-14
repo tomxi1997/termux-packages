@@ -2,12 +2,10 @@ TERMUX_PKG_HOMEPAGE="https://helix-editor.com/"
 TERMUX_PKG_DESCRIPTION="A post-modern modal text editor written in rust"
 TERMUX_PKG_LICENSE="MPL-2.0"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="25.01.1"
-TERMUX_PKG_REVISION=1
+TERMUX_PKG_VERSION="25.07.1"
 TERMUX_PKG_SRCURL="https://github.com/helix-editor/helix/archive/refs/tags/${TERMUX_PKG_VERSION}.tar.gz"
-TERMUX_PKG_SHA256=3f2364463e2e58b0e78ea16fd37a23a93ec2b086323b9ca1e6e310d86a9b3663
-TERMUX_PKG_RECOMMENDS="clang"
-TERMUX_PKG_SUGGESTS="helix-grammars, bash-completion, clangd, delve, elvish, gopls, lldb, nodejs | nodejs-lts"
+TERMUX_PKG_SHA256=27c8bc3eba46bc7bab1e3629c6b28ff94882eeff17366b3ea69cd8ceffba7541
+TERMUX_PKG_SUGGESTS="helix-grammars, bash-completion, clang, delve, elvish, gopls, lldb, nodejs | nodejs-lts"
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_RM_AFTER_INSTALL="
@@ -27,6 +25,7 @@ termux_step_make() {
 
 termux_step_make_install() {
 	local datadir="${TERMUX_PREFIX}/opt/${TERMUX_PKG_NAME}"
+	rm -rf "${datadir}"
 	mkdir -p "${datadir}"
 
 	cat >"${TERMUX_PREFIX}/bin/hx" <<-EOF

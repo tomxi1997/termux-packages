@@ -7,6 +7,8 @@ termux_get_repo_files() {
 		return
 	fi
 
+	[[ "${CI-false}" == "true" ]] && echo "::group::INFO: Fetching repo metadata" || :
+
 	for idx in "${!TERMUX_REPO_URL[@]}"; do
 		local TERMUX_REPO_NAME="${TERMUX_REPO_URL[$idx]#https://}"
 		TERMUX_REPO_NAME="${TERMUX_REPO_NAME#http://}"
@@ -30,23 +32,29 @@ termux_get_repo_files() {
 		esac
 
 		(
-			if termux_download "${RELEASE_FILE_URL}" "${RELEASE_FILE}" SKIP_CHECKSUM && \
-				termux_download "${RELEASE_FILE_SIG_URL}" "${RELEASE_FILE}.gpg" SKIP_CHECKSUM && \
-				gpg --verify "${RELEASE_FILE}.gpg" "${RELEASE_FILE}"; then
+			for retry in {1..3}; do
+				if termux_download "${RELEASE_FILE_URL}" "${RELEASE_FILE}" SKIP_CHECKSUM \
+						&& termux_download "${RELEASE_FILE_SIG_URL}" "${RELEASE_FILE}.gpg" SKIP_CHECKSUM; then
+					if ! gpg --verify "${RELEASE_FILE}.gpg" "${RELEASE_FILE}"; then
+						echo "GPG verification failed, probably we downloaded corrupted metadata. Retrying in 5 seconds."
+						sleep 5
+						continue
+					fi
 
-				if [[ "$TERMUX_REPO_PKG_FORMAT" == "debian" ]]; then
-					for arch in all "${TERMUX_ARCH}"; do
-						PACKAGES_HASH="$(./scripts/get_hash_from_file.py "${RELEASE_FILE}" "${arch}" "${TERMUX_REPO_COMPONENT[$idx]}")"
+					if [[ "$TERMUX_REPO_PKG_FORMAT" == "debian" ]]; then
+						for arch in all "${TERMUX_ARCH}"; do
+							PACKAGES_HASH="$(./scripts/get_hash_from_file.py "${RELEASE_FILE}" "${arch}" "${TERMUX_REPO_COMPONENT[$idx]}")"
 
-						# If packages_hash = "" then the repo probably doesn't contain debs for $arch
-						[[ -n "$PACKAGES_HASH" ]] && \
-							termux_download "${repo_base}/${TERMUX_REPO_COMPONENT[$idx]}/binary-$arch/Packages" \
-									"${TERMUX_COMMON_CACHEDIR}-$arch/${dl_prefix}-Packages" "$PACKAGES_HASH" && \
-							exit 0
-					done
+							# If packages_hash = "" then the repo probably doesn't contain debs for $arch
+							[[ -n "$PACKAGES_HASH" ]] && \
+								termux_download "${repo_base}/${TERMUX_REPO_COMPONENT[$idx]}/binary-$arch/Packages" \
+										"${TERMUX_COMMON_CACHEDIR}-$arch/${dl_prefix}-Packages" "$PACKAGES_HASH" && \
+								exit 0
+						done
+					fi
+					exit 0
 				fi
-				exit 0
-			fi
+			done
 			termux_error_exit "Failed to download package repository metadata. Try to build without -i/-I option."
 		) 2>&1 | (
 			set +e
@@ -65,7 +73,7 @@ termux_get_repo_files() {
 				done
 
 				# prevent output garbling by using stdout as a lock file
-				[[ "${#buffer[@]}" -ge 1 ]] && flock --no-fork 1 printf "%s\n" "${buffer[@]}"
+				[[ "${#buffer[@]}" -ge 1 ]] && flock --no-fork . printf "%s\n" "${buffer[@]}"
 				[[ $rc == 1 ]] && break # exit on EOF
 			done
 		) &
@@ -79,4 +87,5 @@ termux_get_repo_files() {
 			exit 1
 		fi
 	done
+	[[ "${CI-false}" == "true" ]] && echo "::endgroup::" || :
 }

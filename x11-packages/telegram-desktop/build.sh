@@ -4,11 +4,11 @@ TERMUX_PKG_DESCRIPTION="Telegram Desktop Client"
 TERMUX_PKG_LICENSE="custom"
 TERMUX_PKG_LICENSE_FILE="LICENSE, LEGAL"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION=5.14.1
+TERMUX_PKG_VERSION=5.15.4
 TERMUX_PKG_SRCURL=https://github.com/telegramdesktop/tdesktop/releases/download/v$TERMUX_PKG_VERSION/tdesktop-$TERMUX_PKG_VERSION-full.tar.gz
-TERMUX_PKG_SHA256=42d3130292b21928f04e39539f4e7358206bde913ea6e5171b0ffdeb38b9872e
+TERMUX_PKG_SHA256=3705dc2ecf51e9290a565b7a06dcdfc5ecbac13ec536afe582f3411653ad50d9
 TERMUX_PKG_DEPENDS="abseil-cpp, boost, ffmpeg, glib, hicolor-icon-theme, hunspell, kf6-kcoreaddons, libandroid-shmem, libc++, libdispatch, libdrm, liblz4, libminizip, protobuf, librnnoise, libsigc++-3.0, libx11, libxcomposite, libxdamage, libxrandr, libxtst, openal-soft, opengl, openh264, openssl, pipewire, pulseaudio, qt6-qtbase, qt6-qtimageformats, qt6-qtsvg, xxhash, zlib"
-TERMUX_PKG_BUILD_DEPENDS="ada, boost-headers, glib-cross, qt6-qtbase-cross-tools"
+TERMUX_PKG_BUILD_DEPENDS="ada, aosp-libs, boost-headers, glib-cross, qt6-qtbase-cross-tools"
 TERMUX_PKG_VERSIONED_GIR=false
 TERMUX_PKG_AUTO_UPDATE=true
 
@@ -17,6 +17,7 @@ TERMUX_PKG_AUTO_UPDATE=true
 # https://github.com/telegramdesktop/tdesktop/issues/17435
 # https://github.com/telegramdesktop/tdesktop/blob/8fab9167beb2407c1153930ed03a4badd0c2b59f/snap/snapcraft.yaml#L87-L88
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
+-DCMAKE_CXX_SCAN_FOR_MODULES=OFF
 -DCMAKE_SYSTEM_NAME=Linux
 -DCMAKE_VERBOSE_MAKEFILE=ON
 -DDESKTOP_APP_DISABLE_JEMALLOC=ON
@@ -105,60 +106,22 @@ __cppgir_build() {
 __libtd_host_build() {
 	termux_setup_cmake
 
+	mkdir -p $TERMUX_PKG_TMPDIR/host-pkg-config
+	ln -sf /usr/bin/pkg-config $TERMUX_PKG_TMPDIR/host-pkg-config/
+
 	pushd $TERMUX_PKG_HOSTBUILD_DIR
+	rm -rf libtd-host-build
 	mkdir -p libtd-host-build
 	pushd libtd-host-build
+	(set +e +u
+	export PATH="$TERMUX_PKG_TMPDIR/host-pkg-config:$PATH"
+	unset PREFIX prefix CPPFLAGS CC CFLAGS CXX CXXFLAGS LD LDFLAGS PKGCONFIG PKG_CONFIG PKG_CONFIG_DIR PKG_CONFIG_LIBDIR
 	cmake \
 		-DCMAKE_BUILD_TYPE=Release \
 		$TERMUX_PKG_SRCDIR/libtd
 	make -j $TERMUX_PKG_MAKE_PROCESSES prepare_cross_compiling
-	popd # cppgir-host-build
-	popd # $TERMUX_PKG_HOSTBUILD_DIR
-}
-
-__setup_udocker() {
-	pushd $TERMUX_PKG_CACHEDIR
-	python3 -m venv udockervenv
-	source udockervenv/bin/activate
-	pip install udocker
-	udocker install
-	popd # $TERMUX_PKG_CACHEDIR
-}
-
-__tg_codegen_build() {
-	__setup_udocker
-
-	pushd $TERMUX_PKG_HOSTBUILD_DIR
-	mkdir -p codegen-host-build
-	pushd codegen-host-build
-	cp -Rf $TERMUX_PKG_SRCDIR/* ./
-	udocker pull --platform=linux/amd64 ghcr.io/telegramdesktop/tdesktop/centos_env:latest
-	udocker create --name=tg-container --force ghcr.io/telegramdesktop/tdesktop/centos_env:latest
-	udocker run \
-		--bindhome \
-		--workdir=/usr/src/tdesktop/Telegram \
-		--volume=$PWD:/usr/src/tdesktop \
-		tg-container \
-			bash $TERMUX_PKG_BUILDER_DIR/maybe-compile-libtd-for-host.sh
-	udocker run \
-		--bindhome \
-		--workdir=/usr/src/tdesktop/Telegram \
-		--volume=$PWD:/usr/src/tdesktop \
-		tg-container \
-			bash /usr/src/tdesktop/Telegram/configure.sh \
-				-DTDESKTOP_API_TEST=ON \
-				-DDESKTOP_APP_DISABLE_JEMALLOC=ON
-	udocker run \
-		--bindhome \
-		--workdir=/usr/src/tdesktop/Telegram \
-		--volume=$PWD:/usr/src/tdesktop \
-		tg-container \
-			cmake \
-				--build ../out \
-				--config Release \
-				--target codegen_emoji codegen_lang codegen_style
-	udocker rm tg-container
-	popd # codegen-host-build
+	)
+	popd # libtd-host-build
 	popd # $TERMUX_PKG_HOSTBUILD_DIR
 }
 
@@ -166,19 +129,12 @@ TERMUX_PKG_HOSTBUILD=true
 termux_step_host_build() {
 	# Compile cppgir
 	__cppgir_build
-
-	# Prepare cross-compiling for libtd
-	__libtd_host_build
-
-	if [ "$TERMUX_ON_DEVICE_BUILD" = true ]; then
-		return
-	fi
-
-	# Compile codegen
-	__tg_codegen_build
 }
 
 __tg_owt_build() {
+	termux_setup_cmake
+	termux_setup_ninja
+
 	local _TG_OWT_BUILD_DIR="$TERMUX_PKG_BUILDDIR"/tg_owt-build
 	if [ -f "$_TG_OWT_BUILD_DIR"/.tg_owt-built ]; then
 		cd "$_TG_OWT_BUILD_DIR"
@@ -186,9 +142,6 @@ __tg_owt_build() {
 		cd "$TERMUX_PKG_BUILDDIR"
 		return
 	fi
-
-	termux_setup_cmake
-	termux_setup_ninja
 
 	# Backup vars
 	local __old_srcdir="$TERMUX_PKG_SRCDIR"
@@ -224,6 +177,9 @@ __tg_owt_build() {
 }
 
 __libtd_build() {
+	termux_setup_cmake
+	termux_setup_ninja
+
 	local _LIBTD_BUILD_DIR="$TERMUX_PKG_BUILDDIR"/libtd-build
 	if [ -f "$_LIBTD_BUILD_DIR"/.libtd-built ]; then
 		cd "$_LIBTD_BUILD_DIR"
@@ -232,8 +188,8 @@ __libtd_build() {
 		return
 	fi
 
-	termux_setup_cmake
-	termux_setup_ninja
+	# Prepare cross-compiling for libtd
+	__libtd_host_build
 
 	# Backup vars
 	local __old_srcdir="$TERMUX_PKG_SRCDIR"
@@ -247,6 +203,8 @@ __libtd_build() {
 -DBUILD_STATIC_LIBS=ON
 -DTD_INSTALL_SHARED_LIBRARIES=OFF
 -DTD_INSTALL_STATIC_LIBRARIES=ON
+-DTD_E2E_ONLY=ON
+-DTDE2E_INSTALL_INCLUDES=ON
 "
 
 	# Configure
@@ -280,15 +238,19 @@ termux_step_configure() {
 
 	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DPREBUILT_CPPGIR=$TERMUX_PKG_HOSTBUILD_DIR/cppgir-host-build/prefix/bin/cppgir"
 	if [ "$TERMUX_ON_DEVICE_BUILD" = false ]; then
+		termux_setup_proot
+
 		CPPFLAGS+=" -DG_VA_COPY_AS_ARRAY=0"
 		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DPROTOBUF_PROTOC_EXECUTABLE=$(command -v protoc)"
 
 		mkdir -p "$TERMUX_PKG_TMPDIR/bin"
 		local _type
 		for _type in emoji lang style; do
-			ln -sf \
-				"$TERMUX_PKG_HOSTBUILD_DIR/codegen-host-build/out/Telegram/codegen/codegen/$_type/Release/codegen_$_type" \
-				"$TERMUX_PKG_TMPDIR/bin/codegen_$_type"
+			cat <<-EOF > $TERMUX_PKG_TMPDIR/bin/codegen_$_type
+				#!$(command -v sh)
+				exec $(command -v termux-proot-run) $TERMUX_PKG_BUILDDIR/Telegram/codegen/codegen/$_type/codegen_$_type "\$@"
+			EOF
+			chmod +x $TERMUX_PKG_TMPDIR/bin/codegen_$_type
 		done
 		export PATH="$TERMUX_PKG_TMPDIR/bin:$PATH"
 	else

@@ -2,9 +2,9 @@ TERMUX_PKG_HOMEPAGE=https://www.libsdl.org
 TERMUX_PKG_DESCRIPTION="A library for portable low-level access to a video framebuffer, audio output, mouse, and keyboard (version 2)"
 TERMUX_PKG_LICENSE="ZLIB"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="2.32.6"
+TERMUX_PKG_VERSION="2.32.8"
 TERMUX_PKG_SRCURL=https://www.libsdl.org/release/SDL2-${TERMUX_PKG_VERSION}.tar.gz
-TERMUX_PKG_SHA256=6a7a40d6c2e00016791815e1a9f4042809210bdf10cc78d2c75b45c4f52f93ad
+TERMUX_PKG_SHA256=0ca83e9c9b31e18288c7ec811108e58bac1f1bb5ec6577ad386830eac51c787e
 TERMUX_PKG_DEPENDS="libdecor, libiconv, libwayland, libx11, libxcursor, libxext, libxfixes, libxi, libxkbcommon, libxrandr, libxss, pulseaudio"
 TERMUX_PKG_BUILD_DEPENDS="libwayland-cross-scanner, libwayland-protocols, opengl"
 TERMUX_PKG_RECOMMENDS="opengl"
@@ -71,11 +71,8 @@ termux_step_pre_configure() {
 	termux_setup_wayland_cross_pkg_config_wrapper
 }
 
-termux_step_post_massage() {
+termux_step_post_make_install() {
 	# ld(1)ing with `-lSDL2` won't work without this:
 	# https://github.com/termux/x11-packages/issues/633
-	cd ${TERMUX_PKG_MASSAGEDIR}/${TERMUX_PREFIX}/lib || exit 1
-	if [ ! -e "./libSDL2.so" ]; then
-		ln -sf libSDL2-2.0.so libSDL2.so
-	fi
+	ln -sf libSDL2-2.0.so ${TERMUX_PREFIX}/lib/libSDL2.so
 }

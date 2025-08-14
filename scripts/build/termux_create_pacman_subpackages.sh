@@ -4,10 +4,10 @@ termux_create_pacman_subpackages() {
 	if [[ "$TERMUX_PACKAGE_LIBRARY" == 'glibc' ]]; then
 		_ADD_PREFIX="glibc/"
 	fi
-	if [[ "$TERMUX_PKG_NO_STATICSPLIT" == 'false' && -n "$(shopt -s globstar; shopt -s nullglob; echo ${_ADD_PREFIX}lib/**/*.a)" ]]; then
+	if [[ "$TERMUX_PKG_NO_STATICSPLIT" == 'false' && -n "$(shopt -s globstar; shopt -s nullglob; echo ${_ADD_PREFIX}lib{,32}/**/*.a)" ]]; then
 		# Add virtual -static sub package if there are include files:
 		local _STATIC_SUBPACKAGE_FILE=$TERMUX_PKG_TMPDIR/${TERMUX_PKG_NAME}-static.subpackage.sh
-		echo TERMUX_SUBPKG_INCLUDE=\"$(find ${_ADD_PREFIX}lib -name '*.a' -o -name '*.la') $TERMUX_PKG_STATICSPLIT_EXTRA_PATTERNS\" > "$_STATIC_SUBPACKAGE_FILE"
+		echo TERMUX_SUBPKG_INCLUDE=\"$(find ${_ADD_PREFIX}lib{,32} -name '*.a' -o -name '*.la' 2> /dev/null) $TERMUX_PKG_STATICSPLIT_EXTRA_PATTERNS\" > "$_STATIC_SUBPACKAGE_FILE"
 		echo "TERMUX_SUBPKG_DESCRIPTION=\"Static libraries for ${TERMUX_PKG_NAME}\"" >> "$_STATIC_SUBPACKAGE_FILE"
 	fi
 
@@ -46,6 +46,13 @@ termux_create_pacman_subpackages() {
 		# shellcheck source=/dev/null
 		source "$subpackage"
 
+		# Do not create subpackage for specific arches.
+		# Using TERMUX_ARCH instead of SUB_PKG_ARCH (defined below) is intentional.
+		if [[ " ${TERMUX_SUBPKG_EXCLUDED_ARCHES//,/ } " == *" ${TERMUX_ARCH} "* ]]; then
+			echo "Skipping creating subpackage '$SUB_PKG_NAME' for arch $TERMUX_ARCH"
+			continue
+		fi
+
 		# Allow globstar (i.e. './**/') patterns.
 		shopt -s globstar
 		for includeset in $TERMUX_SUBPKG_INCLUDE; do
@@ -60,13 +67,6 @@ termux_create_pacman_subpackages() {
 			fi
 		done
 		shopt -u globstar
-
-		# Do not create subpackage for specific arches.
-		# Using TERMUX_ARCH instead of SUB_PKG_ARCH (defined below) is intentional.
-		if [[ " ${TERMUX_SUBPKG_EXCLUDED_ARCHES//,/ } " == *" ${TERMUX_ARCH} "* ]]; then
-			echo "Skipping creating subpackage '$SUB_PKG_NAME' for arch $TERMUX_ARCH"
-			continue
-		fi
 
 		local SUB_PKG_ARCH=$TERMUX_ARCH
 		[[ "$TERMUX_SUBPKG_PLATFORM_INDEPENDENT" == "true" ]] && SUB_PKG_ARCH=any
@@ -84,7 +84,7 @@ termux_create_pacman_subpackages() {
 
 		# If the subpackage is not in the $TERMUX_PKG_DEPENDS for the parent package,
 		# and TERMUX_SUBPKG_DEPEND_ON_PARENT doesn't have a value, the subpackage should depend on its parent
-		[[ " ${TERMUX_PKG_DEPENDS//,/ } " == *" $SUB_PKG_NAME "* ]] && : "${TERMUX_SUBPKG_DEPEND_ON_PARENT:=true}"
+		[[ " ${TERMUX_PKG_DEPENDS//,/ } " != *" $SUB_PKG_NAME "* ]] && : "${TERMUX_SUBPKG_DEPEND_ON_PARENT:=true}"
 
 		case "$TERMUX_SUBPKG_DEPEND_ON_PARENT" in
 			'unversioned') TERMUX_SUBPKG_DEPENDS+=", $TERMUX_PKG_NAME";;

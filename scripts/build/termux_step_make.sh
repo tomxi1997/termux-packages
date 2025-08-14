@@ -8,8 +8,8 @@ termux_step_make() {
 
 	if test -f build.ninja; then
 		ninja -j $TERMUX_PKG_MAKE_PROCESSES
-	elif ls ./*.cabal &>/dev/null; then
-		cabal build
+	elif ls ./*.cabal &>/dev/null || ls ./cabal.project &>/dev/null; then
+		cabal --config="$TERMUX_CABAL_CONFIG" build
 	elif ls ./*akefile &>/dev/null || [ ! -z "$TERMUX_PKG_EXTRA_MAKE_ARGS" ]; then
 		if [ -z "$TERMUX_PKG_EXTRA_MAKE_ARGS" ]; then
 			make -j $TERMUX_PKG_MAKE_PROCESSES $QUIET_BUILD
@@ -24,4 +24,8 @@ termux_step_make() {
 			--arch "$TERMUX_LDC_TRIPLE"\
 			${TERMUX_PKG_EXTRA_CONFIGURE_ARGS:+ $TERMUX_PKG_EXTRA_CONFIGURE_ARGS}
 	fi
+}
+
+termux_step_make_multilib() {
+	termux_step_make
 }

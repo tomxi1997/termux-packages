@@ -1,11 +1,12 @@
+# Contributor: @samujjal-gogoi
 TERMUX_PKG_HOMEPAGE=https://dart.dev/
 TERMUX_PKG_DESCRIPTION="Dart is a general-purpose programming language"
 TERMUX_PKG_LICENSE="BSD"
 TERMUX_PKG_LICENSE_FILE="sdk/LICENSE"
 TERMUX_PKG_MAINTAINER="@samujjal-gogoi"
-TERMUX_PKG_VERSION="3.7.3"
+TERMUX_PKG_VERSION="3.8.3"
 TERMUX_PKG_SRCURL=https://github.com/dart-lang/sdk/archive/refs/tags/${TERMUX_PKG_VERSION}.tar.gz
-TERMUX_PKG_SHA256=5f7fd432c95adce1a00060675c5b52c001f8b540bcbe8eb1684a77ba4a02f2bd
+TERMUX_PKG_SHA256=29dd0a9be41eb696f8c45ac9bde7c1f0f2884b4e454ab06a137c7f145b58c1f1
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_AUTO_UPDATE=true
 

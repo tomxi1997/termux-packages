@@ -2,9 +2,9 @@ name: Command Not Found Rebuild
 
 on:
   schedule:
-    - cron: "0 0 * * 0" # Runs weekly
+    - cron: "0 0 * * 0" # Runs at 12:00am UTC every Sunday
   workflow_dispatch:
-        
+
 permissions: {} # none
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 1
           token: ${{ secrets.TERMUXBOT2_TOKEN }}

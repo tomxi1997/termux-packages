@@ -144,10 +144,7 @@ PACKAGES+=" php-xml"
 PACKAGES+=" composer"
 
 # Needed by package rust.
-PACKAGES+=" libssl-dev" # Needed to build Rust
-PACKAGES+=" llvm-18-dev"
-PACKAGES+=" llvm-18-tools"
-PACKAGES+=" clang-18"
+PACKAGES+=" libssl-dev"
 
 # Needed by librusty-v8
 PACKAGES+=" libclang-rt-17-dev"
@@ -299,6 +296,11 @@ PACKAGES+=" libcups2-dev"
 PACKAGES+=" libglib2.0-0t64:i386"
 PACKAGES+=" libexpat1:i386"
 
+# Required by code-oss
+PACKAGES+=" libxkbfile-dev"
+PACKAGES+=" libsecret-1-dev"
+PACKAGES+=" libkrb5-dev"
+
 # Required by wine-stable
 PACKAGES+=" libfreetype-dev:i386"
 
@@ -314,9 +316,6 @@ PACKAGES+=" swig"
 # Needed by binutils-cross
 PACKAGES+=" libzstd-dev"
 
-# Needed by tree-sitter-c
-PACKAGES+=" tree-sitter-cli"
-
 # Needed by wlroots
 PACKAGES+=" glslang-tools"
 
@@ -329,22 +328,35 @@ fi
 # Allow 32-bit packages.
 $SUDO dpkg --add-architecture i386
 
+$SUDO apt-get -yq update
+
+# Install jq first, then source properties.sh
+$SUDO env DEBIAN_FRONTEND=noninteractive \
+	apt-get install -yq --no-install-recommends $PACKAGES
+
+. $(dirname "$(realpath "$0")")/properties.sh
+
+LLVM_PACKAGES=""
+
+# Needed by rust and other packages.
+LLVM_PACKAGES+=" llvm-${TERMUX_HOST_LLVM_MAJOR_VERSION}-dev"
+LLVM_PACKAGES+=" llvm-${TERMUX_HOST_LLVM_MAJOR_VERSION}-tools"
+LLVM_PACKAGES+=" clang-${TERMUX_HOST_LLVM_MAJOR_VERSION}"
+
 # Add apt.llvm.org repo to get newer LLVM than Ubuntu provided
 $SUDO cp $(dirname "$(realpath "$0")")/llvm-snapshot.gpg.key /etc/apt/trusted.gpg.d/apt.llvm.org.asc
 $SUDO chmod a+r /etc/apt/trusted.gpg.d/apt.llvm.org.asc
 {
-	echo "deb [arch=amd64] http://apt.llvm.org/noble/ llvm-toolchain-noble-18 main"
+	echo "deb [arch=amd64] http://apt.llvm.org/noble/ llvm-toolchain-noble-${TERMUX_HOST_LLVM_MAJOR_VERSION} main"
 } | $SUDO tee /etc/apt/sources.list.d/apt-llvm-org.list > /dev/null
 
 $SUDO apt-get -yq update
 
 $SUDO env DEBIAN_FRONTEND=noninteractive \
-	apt-get install -yq --no-install-recommends $PACKAGES
+	apt-get install -yq --no-install-recommends $LLVM_PACKAGES
 
 $SUDO locale-gen --purge en_US.UTF-8
 echo -e 'LANG="en_US.UTF-8"\nLANGUAGE="en_US:en"\n' | $SUDO tee -a /etc/default/locale
-
-. $(dirname "$(realpath "$0")")/properties.sh
 
 # Ownership of `TERMUX__PREFIX` must be fixed before `TERMUX_APP__DATA_DIR`
 # if its under it, otherwise `TERMUX__ROOTFS` will not have its ownership fixed.
@@ -358,6 +370,7 @@ $SUDO ln -sf /data/data/com.termux/files/usr/opt/aosp /system
 # Install newer pkg-config then what ubuntu provides, as the stock
 # ubuntu version has performance problems with at least protobuf:
 PKGCONF_VERSION=2.3.0
+PKGCONF_SHA256=3a9080ac51d03615e7c1910a0a2a8df08424892b5f13b0628a204d3fcce0ea8b
 HOST_TRIPLET=$(gcc -dumpmachine)
 PKG_CONFIG_DIRS=$(grep DefaultSearchPaths: /usr/share/pkgconfig/personality.d/${HOST_TRIPLET}.personality | cut -d ' ' -f 2)
 SYSTEM_LIBDIRS=$(grep SystemLibraryPaths: /usr/share/pkgconfig/personality.d/${HOST_TRIPLET}.personality | cut -d ' ' -f 2)
@@ -365,6 +378,7 @@ mkdir -p /tmp/pkgconf-build
 cd /tmp/pkgconf-build
 curl -O https://distfiles.ariadne.space/pkgconf/pkgconf-${PKGCONF_VERSION}.tar.xz
 tar xf pkgconf-${PKGCONF_VERSION}.tar.xz
+echo "${PKGCONF_SHA256}  pkgconf-${PKGCONF_VERSION}.tar.xz" | sha256sum -c -
 cd pkgconf-${PKGCONF_VERSION}
 echo "SYSTEM_LIBDIRS: $SYSTEM_LIBDIRS"
 echo "PKG_CONFIG_DIRS: $PKG_CONFIG_DIRS"

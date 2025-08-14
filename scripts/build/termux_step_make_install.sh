@@ -6,7 +6,7 @@ termux_step_make_install() {
 		ninja -j $TERMUX_PKG_MAKE_PROCESSES install
 	elif test -f setup.py || test -f pyproject.toml || test -f setup.cfg; then
 		pip install --no-deps . --prefix $TERMUX_PREFIX
-	elif ls ./*.cabal &>/dev/null; then
+	elif ls ./*.cabal &>/dev/null || ls ./cabal.project &>/dev/null; then
 		# Workaround until `cabal install` is fixed.
 		while read -r bin; do
 			[[ -f "$bin" ]] || termux_error_exit "'$bin', no such file. Has build completed?"
@@ -33,4 +33,8 @@ termux_step_make_install() {
 			--root $TERMUX_PREFIX \
 			$TERMUX_PKG_EXTRA_CONFIGURE_ARGS
 	fi
+}
+
+termux_step_make_install_multilib() {
+	termux_step_make_install
 }

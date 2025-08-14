@@ -2,11 +2,12 @@ TERMUX_PKG_HOMEPAGE='https://community.kde.org/Frameworks'
 TERMUX_PKG_DESCRIPTION='Support for application crash analysis and bug report from apps'
 TERMUX_PKG_LICENSE="LGPL-2.0, LGPL-3.0"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="6.13.0"
-TERMUX_PKG_SRCURL=https://download.kde.org/stable/frameworks/${TERMUX_PKG_VERSION%.*}/kcrash-${TERMUX_PKG_VERSION}.tar.xz
-TERMUX_PKG_SHA256=262e29adba445d3d00b25043e53c023f32a2c7dde11711c2a483c3536d57b95f
-TERMUX_PKG_DEPENDS="kf6-kcoreaddons (>= ${TERMUX_PKG_VERSION}), libc++, libx11, qt6-qtbase"
-TERMUX_PKG_BUILD_DEPENDS="extra-cmake-modules (>= ${TERMUX_PKG_VERSION}), qt6-qttools"
+TERMUX_PKG_VERSION="6.17.0"
+_KF6_MINOR_VERSION="${TERMUX_PKG_VERSION%.*}"
+TERMUX_PKG_SRCURL=https://download.kde.org/stable/frameworks/${_KF6_MINOR_VERSION}/kcrash-${TERMUX_PKG_VERSION}.tar.xz
+TERMUX_PKG_SHA256=52f4bddc642e68e96f8f18b34bba803b8f9f93cb8cf5e1d1aabccfd3c5285e13
+TERMUX_PKG_DEPENDS="kf6-kcoreaddons (>= ${_KF6_MINOR_VERSION}), libc++, libx11, qt6-qtbase"
+TERMUX_PKG_BUILD_DEPENDS="extra-cmake-modules (>= ${_KF6_MINOR_VERSION}), qt6-qttools"
 # TERMUX_PKG_RECOMMENDS="drkonqi"
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="

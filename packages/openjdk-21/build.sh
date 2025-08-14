@@ -2,21 +2,20 @@ TERMUX_PKG_HOMEPAGE=https://openjdk.java.net
 TERMUX_PKG_DESCRIPTION="Java development kit and runtime"
 TERMUX_PKG_LICENSE="GPL-2.0"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="21.0.7"
+TERMUX_PKG_VERSION="21.0.8"
 TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://github.com/openjdk/jdk21u/archive/refs/tags/jdk-${TERMUX_PKG_VERSION}-ga.tar.gz
-TERMUX_PKG_SHA256=d8637e7d6fece0757b7fada49d32d0b3334a15a110445acef8cfea64b4672ca2
+TERMUX_PKG_SHA256=e0758d17991a51967931854523ca6e287eb4240f0b3e3bc231b2ddb0e77cf71b
 TERMUX_PKG_AUTO_UPDATE=true
-TERMUX_PKG_DEPENDS="libandroid-shmem, libandroid-spawn, libiconv, libjpeg-turbo, zlib, littlecms"
-TERMUX_PKG_BUILD_DEPENDS="cups, fontconfig, libxrandr, libxt, xorgproto"
+TERMUX_PKG_DEPENDS="libandroid-shmem, libandroid-spawn, libiconv, libjpeg-turbo, zlib, littlecms, alsa-plugins"
+TERMUX_PKG_BUILD_DEPENDS="cups, fontconfig, libxrandr, libxt, xorgproto, alsa-lib"
 # openjdk-21-x is recommended because X11 separation is still very experimental.
 TERMUX_PKG_RECOMMENDS="ca-certificates-java, openjdk-21-x, resolv-conf"
 TERMUX_PKG_SUGGESTS="cups"
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_HAS_DEBUG=false
-# currently zgc and shenandoahgc would be auto enabled in server variant,
-# while these features is not supported on arm.
-# only leave lto here.
+# enable lto, but do not explicitly enable zgc or shenandoahgc because they
+# are automatically enabled for x86, but are not supported for arm.
 __jvm_features="link-time-opt"
 
 termux_pkg_auto_update() {
@@ -72,11 +71,14 @@ termux_step_configure() {
 		--with-toolchain-type=clang \
 		--with-extra-cflags="$CFLAGS $CPPFLAGS -DLE_STANDALONE -D__ANDROID__=1 -D__TERMUX__=1" \
 		--with-extra-cxxflags="$CXXFLAGS $CPPFLAGS -DLE_STANDALONE -D__ANDROID__=1 -D__TERMUX__=1" \
-		--with-extra-ldflags="${jdk_ldflags} -Wl,--as-needed -landroid-shmem -landroid-spawn" \
+		--with-extra-ldflags="${jdk_ldflags} -Wl,--as-needed -landroid-shmem -landroid-spawn -liconv" \
 		--with-cups-include="$TERMUX_PREFIX/include" \
 		--with-fontconfig-include="$TERMUX_PREFIX/include" \
 		--with-freetype-include="$TERMUX_PREFIX/include/freetype2" \
 		--with-freetype-lib="$TERMUX_PREFIX/lib" \
+		--with-alsa="$TERMUX_PREFIX" \
+		--with-alsa-include="$TERMUX_PREFIX/include/alsa" \
+		--with-alsa-lib="$TERMUX_PREFIX/lib" \
 		--with-x="$TERMUX_PREFIX/include/X11" \
 		--x-includes="$TERMUX_PREFIX/include/X11" \
 		--x-libraries="$TERMUX_PREFIX/lib" \
@@ -92,12 +94,12 @@ termux_step_configure() {
 		OBJDUMP="$OBJDUMP" \
 		STRIP="$STRIP" \
 		CXXFILT="llvm-cxxfilt" \
-		BUILD_CC="/usr/bin/clang-18" \
-		BUILD_CXX="/usr/bin/clang++-18" \
-		BUILD_NM="/usr/bin/llvm-nm-18" \
-		BUILD_AR="/usr/bin/llvm-ar-18" \
-		BUILD_OBJCOPY="/usr/bin/llvm-objcopy-18" \
-		BUILD_STRIP="/usr/bin/llvm-strip-18" \
+		BUILD_CC="$TERMUX_HOST_LLVM_BASE_DIR/bin/clang" \
+		BUILD_CXX="$TERMUX_HOST_LLVM_BASE_DIR/bin/clang++" \
+		BUILD_NM="$TERMUX_HOST_LLVM_BASE_DIR/bin/llvm-nm" \
+		BUILD_AR="$TERMUX_HOST_LLVM_BASE_DIR/bin/llvm-ar" \
+		BUILD_OBJCOPY="$TERMUX_HOST_LLVM_BASE_DIR/bin/llvm-objcopy" \
+		BUILD_STRIP="$TERMUX_HOST_LLVM_BASE_DIR/bin/llvm-strip" \
 		--with-jobs=$TERMUX_PKG_MAKE_PROCESSES
 }
 
@@ -124,21 +126,103 @@ termux_step_post_make_install() {
 	for manpage in *.1; do
 		gzip "$manpage"
 	done
-}
 
-termux_step_create_debscripts() {
+	# Make sure that our alternatives file is up to date.
 	binaries="$(find $TERMUX_PREFIX/lib/jvm/java-21-openjdk/bin -executable -type f | xargs -I{} basename "{}" | xargs echo)"
 	manpages="$(find $TERMUX_PREFIX/lib/jvm/java-21-openjdk/man/man1 -name "*.1.gz" | xargs -I{} basename "{}" | xargs echo)"
 
-	for hook in postinst prerm; do
-		sed -e "s|@TERMUX_PREFIX@|${TERMUX_PREFIX}|g" \
-			-e "s|@binaries@|${binaries}|g" \
-			-e "s|@manpages@|${manpages}|g" \
-			"$TERMUX_PKG_BUILDER_DIR/hooks/$TERMUX_PACKAGE_FORMAT/$hook.in" > $hook
-		chmod 700 $hook
+	local failure=false
+	for binary in $binaries; do
+		grep -q "lib/jvm/java-21-openjdk/bin/${binary}$" "$TERMUX_PKG_BUILDER_DIR"/openjdk-21.alternatives || {
+			echo "ERROR: Missing entry for binary: $binary in openjdk-21.alternatives"
+			failure=true
+		}
 	done
-
-	if [ "$TERMUX_PACKAGE_FORMAT" = "pacman" ]; then
-		echo "post_install" > postupg
+	for manpage in $manpages; do
+		grep -q "lib/jvm/java-21-openjdk/man/man1/${manpage}$" "$TERMUX_PKG_BUILDER_DIR"/openjdk-21.alternatives || {
+			echo "ERROR: Missing entry for manpage: $manpage in openjdk-21.alternatives"
+			failure=true
+		}
+	done
+	if [[ "$failure" = true ]]; then
+		termux_error_exit "ERROR: openjdk-21.alternatives is not up to date, please update it."
 	fi
+}
+
+termux_step_create_debscripts() {
+	# For older versions of openjdk-17 and openjdk-21, we used to provide different alternatives for each binary and manpage.
+	# This script removes those alternatives if the user is upgrading from an older version.
+	#
+	# Using slaves for all binaries and manpages makes it much easier to switch between different versions of openjdk.
+	local old_alternatives=(
+		java-profile
+		jar
+		jarsigner
+		java
+		javac
+		javadoc
+		javap
+		jcmd
+		jconsole
+		jdb
+		jdeprscan
+		jdeps
+		jfr
+		jhsdb
+		jimage
+		jinfo
+		jlink
+		jmap
+		jmod
+		jpackage
+		jps
+		jrunscript
+		jshell
+		jstack
+		jstat
+		jstatd
+		jwebserver
+		keytool
+		rmiregistry
+		serialver
+		jar.1.gz
+		jarsigner.1.gz
+		java.1.gz
+		javac.1.gz
+		javadoc.1.gz
+		javap.1.gz
+		jcmd.1.gz
+		jconsole.1.gz
+		jdb.1.gz
+		jdeprscan.1.gz
+		jdeps.1.gz
+		jfr.1.gz
+		jhsdb.1.gz
+		jinfo.1.gz
+		jlink.1.gz
+		jmap.1.gz
+		jmod.1.gz
+		jpackage.1.gz
+		jps.1.gz
+		jrunscript.1.gz
+		jshell.1.gz
+		jstack.1.gz
+		jstat.1.gz
+		jstatd.1.gz
+		jwebserver.1.gz
+		keytool.1.gz
+		rmiregistry.1.gz
+		serialver.1.gz
+	)
+	# For older versions
+	echo 'if [ "$#" = "3" ] && dpkg --compare-versions "$2" le "21.0.7-2"; then' > ./preinst
+	echo '  echo "Removing older alternatives for openjdk-21 and openjdk-17"' >> ./preinst
+	echo '  echo "This may take a while if mandoc package is installed, please wait..."' >> ./preinst
+	echo '  echo "Newer versions of openjdk-21 and openjdk-17 change how alternatives are handled."' >> ./preinst
+	echo '  echo "Instead of having different alternatives for each manpage and binary, now you can switch java versions much easily using \"update-alternatives --config java\""' >> ./preinst
+	echo '  echo "This should switch all java binaries, manpages, and bash profile for java in a single command instead of switching everything manually"' >> ./preinst
+	for alternative in "${old_alternatives[@]}"; do
+		echo "  update-alternatives --remove-all ${alternative} || :" >> ./preinst
+	done
+	echo 'fi' >> ./preinst
 }

@@ -2,10 +2,10 @@ TERMUX_PKG_HOMEPAGE=https://mariadb.org
 TERMUX_PKG_DESCRIPTION="A drop-in replacement for mysql server"
 TERMUX_PKG_LICENSE="GPL-2.0"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="2:11.8.0"
+TERMUX_PKG_VERSION="2:12.0.2"
 TERMUX_PKG_SRCURL=https://archive.mariadb.org/mariadb-${TERMUX_PKG_VERSION#*:}/source/mariadb-${TERMUX_PKG_VERSION#*:}.tar.gz
-TERMUX_PKG_SHA256=57456dbdd1d9ea6274c18d28500d27c95ea926ce6ba30a7ea81e1ddf4bef8515
-TERMUX_PKG_DEPENDS="libandroid-support, libc++, libcrypt, libedit, liblz4, liblzma, ncurses, openssl, pcre2, zlib, zstd"
+TERMUX_PKG_SHA256=2640eaa80b6d90bedb98d1b77efd0972cb20177c72f1b01dda11b0617c427743
+TERMUX_PKG_DEPENDS="libandroid-support, libbz2, libc++, libcrypt, libedit, liblz4, libxml2, liblzma, ncurses, openssl, pcre2, zlib, zstd"
 TERMUX_PKG_BREAKS="mariadb-dev"
 TERMUX_PKG_CONFLICTS="mysql"
 TERMUX_PKG_REPLACES="mariadb-dev"
@@ -19,6 +19,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DBUILD_CONFIG=mysql_release
 -DCAT_EXECUTABLE=$(command -v cat)
 -DGIT_EXECUTABLE=$(command -v git)
+-DHAVE_SYSTEM_LIBFMT_EXITCODE=0
 -DGSSAPI_FOUND=NO
 -DGRN_WITH_LZ4=yes
 -DENABLED_LOCAL_INFILE=ON
@@ -87,6 +88,7 @@ termux_step_pre_configure() {
 	fi
 
 	CPPFLAGS+=" -Dushort=u_short"
+	CXXFLAGS+=" -Wno-register"
 
 	if [ $TERMUX_ARCH_BITS = 32 ]; then
 		CPPFLAGS+=" -D__off64_t_defined"

@@ -2,12 +2,11 @@ TERMUX_PKG_HOMEPAGE=https://findomain.app/
 TERMUX_PKG_DESCRIPTION="Findomain is the fastest subdomain enumerator and the only one written in Rust"
 TERMUX_PKG_LICENSE="GPL-3.0"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="9.0.4"
-TERMUX_PKG_REVISION=1
+TERMUX_PKG_VERSION="10.0.1"
 TERMUX_PKG_SRCURL=https://github.com/Findomain/Findomain/archive/refs/tags/${TERMUX_PKG_VERSION}.tar.gz
-TERMUX_PKG_SHA256=98c142e2e6ed67726bdea7a1726a54fb6773a8d1ccaa262e008804432af29190
+TERMUX_PKG_SHA256=2562943c29a9b3ce1b76685d9e7de1ad5109f80a35c6941e7853b31fb92641fa
 TERMUX_PKG_AUTO_UPDATE=true
-TERMUX_PKG_DEPENDS="resolv-conf"
+TERMUX_PKG_DEPENDS="resolv-conf, openssl"
 TERMUX_PKG_BUILD_IN_SRC=true
 
 termux_step_pre_configure() {
@@ -24,14 +23,24 @@ termux_step_pre_configure() {
 	: "${CARGO_HOME:=$HOME/.cargo}"
 	export CARGO_HOME
 
-	cargo fetch --target "${CARGO_TARGET_NAME}"
+	cargo vendor
+	find ./vendor \
+		-mindepth 1 -maxdepth 1 -type d \
+		! -wholename ./vendor/hickory-resolver \
+		-exec rm -rf '{}' \;
 
-	for d in $CARGO_HOME/registry/src/*/trust-dns-resolver-*; do
-		sed -e "s|@TERMUX_PREFIX@|$TERMUX_PREFIX|" \
-			$TERMUX_PKG_BUILDER_DIR/trust-dns-resolver.diff \
-			| patch --silent -p1 -d ${d} || :
-	done
+	patch --silent -p1 \
+		-d ./vendor/hickory-resolver/ \
+		< "$TERMUX_PKG_BUILDER_DIR"/hickory-resolver.diff
 
-	# clash with rust host build
+	cat <<- EOF >> Cargo.toml
+
+	[patch.crates-io]
+	hickory-resolver = { path = "./vendor/hickory-resolver" }
+	EOF
+
+	# clash with Rust host build
 	unset CFLAGS
+
+	export OPENSSL_NO_VENDOR=1
 }

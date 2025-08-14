@@ -2,9 +2,9 @@ TERMUX_PKG_HOMEPAGE=https://www.erlang.org/
 TERMUX_PKG_DESCRIPTION="General-purpose concurrent functional programming language"
 TERMUX_PKG_LICENSE="Apache-2.0"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="27.3.3"
+TERMUX_PKG_VERSION="28.0.2"
 TERMUX_PKG_SRCURL=https://github.com/erlang/otp/archive/refs/tags/OTP-$TERMUX_PKG_VERSION.tar.gz
-TERMUX_PKG_SHA256=1ecd443b3ba832148f4644ebc7722024b66bf1ab4fa70823c4c86f3801f50baf
+TERMUX_PKG_SHA256=ae202078906c10d1c107ba8d580e22062432fc602fb1483a2972d886bd426f5e
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_UPDATE_VERSION_REGEXP='\d+(\.\d+)+'
 TERMUX_PKG_DEPENDS="libc++, openssl, ncurses, zlib"
@@ -16,6 +16,11 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 --with-ssl=${TERMUX_PREFIX}
 --with-termcap
 erl_xcomp_sysroot=${TERMUX_PREFIX}
+"
+# for some reason, these do not work properly, and are duplicates
+# of ones patched to work which are installed into $TERMUX_PREFIX/share/man/man1
+TERMUX_PKG_RM_AFTER_INSTALL="
+lib/erlang/man
 "
 
 termux_pkg_auto_update() {
@@ -39,8 +44,11 @@ termux_step_host_build() {
 	cd $TERMUX_PKG_BUILDDIR
 	# Erlang cross compile reference: https://github.com/erlang/otp/blob/master/HOWTO/INSTALL-CROSS.md#building-a-bootstrap-system
 	# Build erlang bootstrap system.
-	./configure --enable-bootstrap-only --without-javac --without-ssl --without-termcap
+	# the prefix must be set to $TERMUX_PREFIX here to install the documentation where desired
+	# without making a mess.
+	./configure --prefix="$TERMUX_PREFIX" --without-javac --with-termcap
 	make -j $TERMUX_PKG_MAKE_PROCESSES
+	make RELSYS_MANDIR="$TERMUX_PREFIX/share/man" install-docs
 }
 
 termux_step_pre_configure() {

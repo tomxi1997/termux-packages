@@ -1,11 +1,11 @@
-TERMUX_PKG_HOMEPAGE=https://vtm.netxs.online/
+TERMUX_PKG_HOMEPAGE=https://github.com/directvt/vtm
 TERMUX_PKG_DESCRIPTION="Terminal multiplexer with TUI window manager and multi-party session sharing"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_LICENSE_FILE="LICENSE"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="0.9.99.70"
-TERMUX_PKG_SRCURL=https://github.com/netxs-group/vtm/archive/refs/tags/v${TERMUX_PKG_VERSION}.tar.gz
-TERMUX_PKG_SHA256=9068151b389723a1f6059296359c49dde77f18c2f08af050b33a34f3d06ad1c2
+TERMUX_PKG_VERSION="2025.08.13"
+TERMUX_PKG_SRCURL=https://github.com/directvt/vtm/archive/refs/tags/v${TERMUX_PKG_VERSION}.tar.gz
+TERMUX_PKG_SHA256=e57bd4455b49b448cabb6938bd329d0714247ff4d0118915eb7c8af50d7df2bf
 TERMUX_PKG_DEPENDS="libc++"
 TERMUX_PKG_BUILD_DEPENDS="libandroid-spawn"
 TERMUX_PKG_BUILD_IN_SRC=true
