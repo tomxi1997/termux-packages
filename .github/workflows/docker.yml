@@ -70,7 +70,7 @@ jobs:
         sudo ./repack.sh
         sudo rm -rf GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp
         cp $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/A/data/docker.tar.xz $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker
-        cp -R $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/A/data/system $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker
+        cp -R $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/A/system $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker
         echo "///////////////////////////////////////////"
         
     - name: Upload debian package 
