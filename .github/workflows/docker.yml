@@ -64,13 +64,13 @@ jobs:
     - name: Make magisk module
       run: |
         echo "///////////////////////////////////////////"
-        cd $GITHUB_WORKSPACE/kernel_workspace/termux-packages/output
-        cp -R $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/repack.sh .
+        cp $GITHUB_WORKSPACE/kernel_workspace/termux-packages/output/*.deb $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp
+        cd $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp
         sudo chmod +x repack.sh
         sudo ./repack.sh
         sudo rm -rf GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp
-        cp $GITHUB_WORKSPACE/kernel_workspace/termux-packages/output/A/data/docker.tar.xz $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker
-        cp -R $GITHUB_WORKSPACE/kernel_workspace/termux-packages/output/A/data/system $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker
+        cp $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/A/data/docker.tar.xz $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker
+        cp -R $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/A/data/system $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker
         echo "///////////////////////////////////////////"
         
     - name: Upload debian package 
