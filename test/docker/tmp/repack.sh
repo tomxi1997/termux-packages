@@ -37,15 +37,13 @@ for FILES in "$EXTRACT_DIR/data/docker/bin/"*; do
     fi
 done
 
-rm $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/repack.sh
-cp $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/*.sh $GITHUB_WORKSPACE/kernel_workspace/termux-packages/output/A/data/docker
-cp $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/dockerd $GITHUB_WORKSPACE/kernel_workspace/termux-packages/output/A/data/docker/bin
-cp $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/busybox $GITHUB_WORKSPACE/kernel_workspace/termux-packages/output/A/data/docker/bin
-cp $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/docker-init $GITHUB_WORKSPACE/kernel_workspace/termux-packages/output/A/data/docker/bin
-cp $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/daemon.json $GITHUB_WORKSPACE/kernel_workspace/termux-packages/output/A/data/docker/etc/docker/
-cp $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/config.toml $GITHUB_WORKSPACE/kernel_workspace/termux-packages/output/A/data/docker/etc/containerd
 
-
+cp ./*.sh ./A/data/docker
+cp ./dockerd ./A/data/docker/bin
+cp ./busybox ./A/data/docker/bin
+cp ./docker-init ./A/data/docker/bin
+cp ./daemon.json ./A/data/docker/etc/docker/
+cp ./config.toml ./A/data/docker/etc/containerd/
 
 cd ./A/data
 XZ_OPT="-9" tar -cJf docker.tar.xz docker
