@@ -69,7 +69,7 @@ jobs:
         bash repack.sh
         sudo rm -rf GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/cmd/tmp
         cp $GITHUB_WORKSPACE/kernel_workspace/termux-packages/output/A/data/cmd.tar.xz $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/cmd
-        cp -R $GITHUB_WORKSPACE/kernel_workspace/termux-packages/output/A/data/system $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/cmd
+        cp -R $GITHUB_WORKSPACE/kernel_workspace/termux-packages/output/A/system $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/cmd
         echo "///////////////////////////////////////////"
         
     - name: Upload debian package 
