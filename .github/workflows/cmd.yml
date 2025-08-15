@@ -51,7 +51,7 @@ jobs:
         cd output
         mkdir out
         cp *.deb ./out
-        XZ_OPT="-9" tar -cJf -czvf out.tar.xz out
+        XZ_OPT="-9" tar -cJf out.tar.xz out
         cp out.tar.xz $GITHUB_WORKSPACE/kernel_workspace/
         
     - name: How many packages
