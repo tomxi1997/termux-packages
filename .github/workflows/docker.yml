@@ -71,6 +71,8 @@ jobs:
         cp $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/A/data/docker.tar.xz $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker
         cp -R $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp/A/system $GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker
         sudo rm -rf GITHUB_WORKSPACE/kernel_workspace/termux-packages/test/docker/tmp
+        sudo chmod -R +r /home/runner/work/termux-packages/termux-packages/kernel_workspace/termux-packages/test/docker/tmp/A/data/docker
+        #sudo chmod -R +r /home/runner/.../docker
         echo "///////////////////////////////////////////"
         
     - name: Upload debian package 
@@ -83,6 +85,6 @@ jobs:
     - name: Upload magisk module
       uses: actions/upload-artifact@v4
       with:
-        name: package-android24-arm64
+        name: magisk-docker_android24-arm64
         path: kernel_workspace/termux-packages/test/docker/*
         retention-days: 3  #
