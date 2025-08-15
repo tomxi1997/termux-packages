@@ -1,0 +1,6 @@
+id=docker
+name=Docker-core for Android
+author=tomxi1997
+description=Docker core Android(预含systemd-ubuntu24,支持usb热拔插,连接方式"ssh root@localhost -p 2404 密码为root"
+version=v8
+versionCode=2

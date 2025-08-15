@@ -1,0 +1,9 @@
+root = "/data/docker/var/lib/containerd"
+state = "/data/docker/var/run/containerd"
+imports = ["/data/docker/etc/containerd/runtime_*.toml", "./debug.toml"]
+
+[grpc]
+  address = "/data/docker/var/run/containerd/containerd.sock"
+
+[debug]
+  address = "/data/docker/var/run/containerd/debug.sock"

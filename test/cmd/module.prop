@@ -1,0 +1,6 @@
+id=cmd
+name=CMD for Android
+author=tomxi1997@github.com
+description=Some linux binarys compile by Android NDK(powerd by Termux project)
+version=v8
+versionCode=4
