@@ -22,15 +22,16 @@ for FILES in "$EXTRACT_DIR/data/cmd/bin/"*; do
     if [ -f "$FILES" ]; then
         # 获取原始bin文件的基础名
         B_FILENAME=$(basename "$FILES")
+		B_FILENAME2=$(basename "$FILES")-bin
         # 创建脚本存放目录
         mkdir -p "$SCRIPT_DIR"
         # 生成脚本内容（首次创建用>，后续追加用>>）
         
-        echo "#!/system/bin/sh" > "$SCRIPT_DIR/$B_FILENAME"
-        echo 'export PATH="/data/cmd/bin:$PATH"' >> "$SCRIPT_DIR/$B_FILENAME"
-        echo 'export LD_LIBRARY_PATH="/data/cmd/lib:$LD_LIBRARY_PATH"' >> "$SCRIPT_DIR/$B_FILENAME"
+        echo "#!/system/bin/sh" > "$SCRIPT_DIR/$B_FILENAME2"
+        echo 'export PATH="/data/cmd/bin:$PATH"' >> "$SCRIPT_DIR/$B_FILENAME2"
+        echo 'export LD_LIBRARY_PATH="/data/cmd/lib:$LD_LIBRARY_PATH"' >> "$SCRIPT_DIR/$B_FILENAME2"
         #echo "cd /data/cmd" >> "$SCRIPT_DIR/$B_FILENAME"
-        echo "/data/cmd/bin/$B_FILENAME \$@" >> "$SCRIPT_DIR/$B_FILENAME"
+        echo "/data/cmd/bin/$B_FILENAME \$@" >> "$SCRIPT_DIR/$B_FILENAME2"
         
         echo "已生成脚本: $B_FILENAME 到目录: $SCRIPT_DIR"
         echo "---------------------------------------"
