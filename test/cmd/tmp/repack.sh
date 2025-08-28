@@ -28,7 +28,7 @@ for FILES in "$EXTRACT_DIR/data/cmd/bin/"*; do
         # 生成脚本内容（首次创建用>，后续追加用>>）
         
         echo "#!/system/bin/sh" > "$SCRIPT_DIR/$B_FILENAME2"
-        echo 'export PATH="/data/cmd/bin:$PATH"' >> "$SCRIPT_DIR/$B_FILENAME2"
+        echo 'export PATH="/data/cmd/bin:/data/cmd/libexec:$PATH"' >> "$SCRIPT_DIR/$B_FILENAME2"
         echo 'export LD_LIBRARY_PATH="/data/cmd/lib:$LD_LIBRARY_PATH"' >> "$SCRIPT_DIR/$B_FILENAME2"
         #echo "cd /data/cmd" >> "$SCRIPT_DIR/$B_FILENAME"
         echo "/data/cmd/bin/$B_FILENAME \$@" >> "$SCRIPT_DIR/$B_FILENAME2"
