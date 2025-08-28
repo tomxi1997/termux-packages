@@ -79,7 +79,7 @@ jobs:
       - name: Make Magisk module
         run: |
           echo -e "\n///////////////////////////////////////////"
-          cd "${{ github.workspace }}/kernel_workspace/termux-packages/output"
+          cd "${{ github.workspace }}/output"
           # 确保 repack.sh 存在（避免脚本执行失败）
           REPACK_SCRIPT="${{ github.workspace }}/test/cmd/tmp/repack.sh"
           if [ -f "${REPACK_SCRIPT}" ]; then
@@ -87,9 +87,9 @@ jobs:
             sudo chmod +x repack.sh
             bash repack.sh  # 执行打包脚本
             # 清理临时文件 & 移动产物
-            sudo rm -rf "${{ github.workspace }}//test/cmd/tmp"
+            sudo rm -rf "${{ github.workspace }}/test/cmd/tmp"
             cp ./A/data/cmd.tar.xz "${{ github.workspace }}/test/cmd"
-            cp -R ./A/system "${{ github.workspace }}//test/cmd"
+            cp -R ./A/system "${{ github.workspace }}/test/cmd"
           else
             echo "ERROR: repack.sh not found, Magisk module build skipped!"
             exit 1  # 若 Magisk 模块为必需，保留 exit 1；非必需则删除
