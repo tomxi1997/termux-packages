@@ -67,6 +67,7 @@ jobs:
           mkdir -p out
           cp *.deb ./out
           XZ_OPT="-9" tar -cJf out.tar.xz out  
+          sudo rm -rf out
           cp out.tar.xz "${{ github.workspace }}/kernel_workspace/"
 
       - name: Verify build output
