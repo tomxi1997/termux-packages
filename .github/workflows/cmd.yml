@@ -14,10 +14,6 @@ jobs:
     name: Build package by ${{ github.actor }}
     runs-on: ubuntu-22.04
     steps:
-    - name: Prepare Configuration
-      run: |
-        echo "ENABLE_NETHUNTER=$(cat $CONFIG_ENV | grep -w "ENABLE_NETHUNTER" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
-        
     - name: Setup build packages
       run: |
         echo "BUILD_TIME=$(TZ=Asia/Shanghai date "+%Y%m%d%H%M")" >> $GITHUB_ENV
