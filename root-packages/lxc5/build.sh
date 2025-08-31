@@ -1,10 +1,7 @@
-#!/data/data/com.termux/files/usr/bin/bash
-set -euo pipefail
 
 # ==============================================================================
 # 1. 基础包信息（Termux 规范强制项，字段含义与官方保持一致）
 # ==============================================================================
-TERMUX_PKG_NAME="lxc"
 TERMUX_PKG_VERSION="5.0"  # 选用 LXC 最新稳定版（截至 2024.5，可随新版本更新）
 TERMUX_PKG_REVISION="1"     # 包修订号，首次提交为 1，后续修改递增
 TERMUX_PKG_SRCURL="https://github.com/tomxi1997/termux-packages/releases/download/v12/lxc-${TERMUX_PKG_VERSION}.tar.xz"  # 官方 Release tar 包（优先于 Git 仓库，稳定性更高）
@@ -28,7 +25,6 @@ TERMUX_PKG_DEPENDS="libc++, zlib"  # libc++ 是 Android 标准 C++ 库，zlib �
 # ==============================================================================
 TERMUX_PKG_ARCH="aarch64"  # 仅适配 aarch64（与原始 NDK 交叉编译配置一致，Android 主流架构）
 TERMUX_PKG_BLACKLISTED_ARCHES="arm, i686, x86_64"  # 明确禁用非 aarch64 架构（避免编译失败）
-TERMUX_PKG_EXTRA_MAKE_ARGS="-j${TERMUX_MAKE_PROCESSES}"  # 复用 Termux 多核编译参数（提升编译速度）
 
 # ==============================================================================
 # 4. 配置文件声明（Termux 包管理规范：标记需保留的配置文件，避免升级覆盖）
