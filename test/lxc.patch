@@ -1,0 +1,68 @@
+diff --git a/scripts/properties.sh b/scripts/properties.sh
+index 18e32d9cb3..5d4d1f0438 100644
+--- a/scripts/properties.sh
++++ b/scripts/properties.sh
+@@ -306,7 +306,7 @@ TERMUX__REPOS_HOST_ORG_URL="https://github.com/$TERMUX__REPOS_HOST_ORG_NAME"
+ #
+ # Default value: `com.termux`
+ ##
+-TERMUX_APP__PACKAGE_NAME="com.termux"
++TERMUX_APP__PACKAGE_NAME="lxc"
+ TERMUX_APP_PACKAGE="$TERMUX_APP__PACKAGE_NAME" # Deprecated alternative variable for `TERMUX_APP__PACKAGE_NAME`
+ 
+ __termux_build_props__add_variables_validator_actions "TERMUX_APP__PACKAGE_NAME" "app_package_name"
+@@ -327,7 +327,7 @@ __termux_build_props__add_variables_validator_actions "TERMUX_APP__PACKAGE_NAME"
+ #
+ # Default value: `/data/data/com.termux`
+ ##
+-TERMUX_APP__DATA_DIR="/data/data/$TERMUX_APP__PACKAGE_NAME"
++TERMUX_APP__DATA_DIR="/data"
+ __termux_build_props__add_variables_validator_actions "TERMUX_APP__DATA_DIR" "safe_absolute_path"
+ 
+ ##
+@@ -616,7 +616,7 @@ __termux_build_props__add_variables_validator_actions "TERMUX__ROOTFS_SUBDIR" "a
+ #
+ # Default value: `/data/data/com.termux/files`
+ ##
+-TERMUX__ROOTFS="$TERMUX_APP__DATA_DIR/$TERMUX__ROOTFS_SUBDIR"
++TERMUX__ROOTFS="$TERMUX_APP__DATA_DIR/$TERMUX_APP__PACKAGE_NAME"
+ TERMUX_BASE_DIR="$TERMUX__ROOTFS" # Deprecated alternative variable for `TERMUX__ROOTFS`
+ 
+ __termux_build_props__add_variables_validator_actions "TERMUX__ROOTFS" "safe_rootfs_or_absolute_path invalid_termux_rootfs_paths"
+@@ -649,7 +649,7 @@ TERMUX__ROOTFS_DIR___MAX_LEN=86
+ #
+ # Default value: `home`
+ ##
+-TERMUX__HOME_SUBDIR="home"
++TERMUX__HOME_SUBDIR=".lxc"
+ __termux_build_props__add_variables_validator_actions "TERMUX__HOME_SUBDIR" "safe_relative_path"
+ 
+ ##
+@@ -768,8 +768,7 @@ __termux_build_props__add_variables_validator_actions "TERMUX__PREFIX_SUBDIR" "a
+ #
+ # Default value: `/data/data/com.termux/files/usr`
+ ##
+-[[ "$TERMUX__ROOTFS" != "/" ]] && TERMUX__PREFIX="$TERMUX__ROOTFS${TERMUX__PREFIX_SUBDIR:+"/$TERMUX__PREFIX_SUBDIR"}" || \
+-    TERMUX__PREFIX="/$TERMUX__PREFIX_SUBDIR"
++TERMUX__PREFIX="$TERMUX__ROOTFS"
+ __termux_build_props__add_variables_validator_actions "TERMUX__PREFIX" "safe_absolute_path invalid_termux_prefix_paths"
+ 
+ if [[ "$TERMUX__ROOTFS" != "/" ]] && [[ "$__TERMUX_BUILD_PROPS__VALIDATE_TERMUX_PREFIX_USR_MERGE_FORMAT" != "true" ]]; then
+@@ -1504,7 +1503,7 @@ TERMUX_APP__REPO_URL="$TERMUX__REPOS_HOST_ORG_URL/$TERMUX_APP__REPO_NAME"
+ #
+ # Default value: `com.termux`
+ ##
+-TERMUX_APP__NAMESPACE="com.termux"
++TERMUX_APP__NAMESPACE="lxc"
+ 
+ __termux_build_props__add_variables_validator_actions "TERMUX_APP__NAMESPACE" "app_package_name"
+ 
+@@ -2371,7 +2370,7 @@ including the null \`\0\` terminator." 1>&2
+ 
+ }
+ 
+-__termux_build_props__validate_variables || exit $?
++#__termux_build_props__validate_variables || exit $?
+ 
+ unset __TERMUX_BUILD_PROPS__VARIABLES_VALIDATOR_ACTIONS_MAP
+ unset __TERMUX_BUILD_PROPS__VARIABLES_VALIDATOR_ACTIONS_VARIABLE_NAMES

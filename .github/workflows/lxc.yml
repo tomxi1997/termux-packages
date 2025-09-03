@@ -1,0 +1,113 @@
+name: Build CMD2 packages for Android
+on:
+  watch:
+    types: [started]
+  workflow_dispatch:
+    inputs:
+      packages:
+        description: '需要构建的软件包（用空格分隔，例如：aria2 samba）'
+        required: true
+        default: 'lxc tar busybox wget'  # 默认构建包列表
+
+jobs:
+  build:
+    name: Build package by ${{ github.actor }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Prepare Configuration
+        run: |
+          echo "BUILD_TIME=$(TZ=Asia/Shanghai date "+%Y%m%d%H%M")" >> $GITHUB_ENV  # 提前定义构建时间
+
+      # 修复3：解决 10GB 交换分区创建失败（指定根分区路径，默认 /mnt 空间不足）
+      - name: Set swap to 10G (fix No space left error)
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 10
+          swap-file-path: "/swapfile"  # 关键：在根分区创建（ubuntu-22.04  runners 根分区有 ≥25GB 空间）
+
+      # 修复4：统一 apt 命令，安装缺失依赖（避免重复 update，补充 git 等必需工具）
+      - name: Setup build dependencies
+        run: |
+          sudo apt update -y
+          # 安装构建必需依赖（tk-dev、git 等）
+          sudo apt install -y tk-dev git xz-utils patch
+          # 启动 docker 服务（run-docker.sh 依赖）
+          sudo systemctl start docker
+          # 创建工作目录（确保路径存在）
+          mkdir -p "${{ github.workspace }}/kernel_workspace"
+
+      - name: build packages
+        run: |
+          cd "${{ github.workspace }}"
+          # 修复 docker 版本脚本（保持原逻辑）
+          sed -i 's/TERMUX_PKG_VERSION=1:/TERMUX_PKG_VERSION=/' ./root-packages/docker/build.sh
+          sed -i 's/${TERMUX_PKG_VERSION:2}/${TERMUX_PKG_VERSION}/g' ./root-packages/docker/build.sh
+
+          # 应用补丁（确保 patch 文件存在，不存在则跳过）
+          PATCH_FILE="${{ github.workspace }}/test/lxc.patch"
+          if [ -f "${PATCH_FILE}" ]; then
+            patch -p1 < "${PATCH_FILE}"
+          else
+            echo "WARNING: lxc.patch not found, skipping patch..."
+          fi
+
+          # 显示待构建包列表（优化日志可读性）
+          echo -e "\n///////////////////////////////////////////"
+          echo "待构建的软件包：${{ github.event.inputs.packages }}"
+          echo "///////////////////////////////////////////\n"
+
+          # 构建 DEB 包（--format debian 指定输出格式）
+          ./scripts/run-docker.sh ./build-package.sh -i --format debian ${{ github.event.inputs.packages }}
+
+          # 打包输出文件
+          cd output
+          mkdir -p out
+          cp *.deb ./out
+          XZ_OPT="-9" tar -cJf out.tar.xz out  
+          sudo rm -rf out
+          cp out.tar.xz "${{ github.workspace }}/kernel_workspace/"
+
+      - name: Verify build output
+        run: |
+          echo -e "\n///////////////////////////////////////////"
+          echo "构建输出文件列表："
+          ls -lh "${{ github.workspace }}/output"
+          echo "///////////////////////////////////////////\n"
+
+      - name: Make Magisk module
+        run: |
+          echo -e "\n///////////////////////////////////////////"
+          cd "${{ github.workspace }}/output"
+          # 确保 repack.sh 存在（避免脚本执行失败）
+          REPACK_SCRIPT="${{ github.workspace }}/test/cmd/tmp/repack.sh"
+          if [ -f "${REPACK_SCRIPT}" ]; then
+            cp "${REPACK_SCRIPT}" .
+            sudo chmod +x repack.sh
+            bash repack.sh  # 执行打包脚本
+            # 清理临时文件 & 移动产物
+            sudo rm -rf "${{ github.workspace }}/test/cmd/tmp"
+            cp ./A/data/lxc.tar.xz "${{ github.workspace }}/test/cmd"
+            cp -R ./A/system "${{ github.workspace }}/test/lxc"
+          else
+            echo "ERROR: repack.sh not found, Magisk module build skipped!"
+            exit 1  # 若 Magisk 模块为必需，保留 exit 1；非必需则删除
+          fi
+          echo "///////////////////////////////////////////\n"
+
+      # 优化：上传产物时添加构建时间标签，便于区分版本
+      - name: Upload Debian package
+        uses: actions/upload-artifact@v4
+        with:
+          name: "package-android24-arm64-${{ env.BUILD_TIME }}"  # 追加构建时间
+          path: "${{ github.workspace }}/kernel_workspace/out.tar.xz"
+          retention-days: 3
+
+      - name: Upload Magisk module
+        uses: actions/upload-artifact@v4
+        with:
+          name: "magisk-android24-CMD-${{ env.BUILD_TIME }}"  # 追加构建时间
+          path: "${{ github.workspace }}/test/cmd/*"
+          retention-days: 3

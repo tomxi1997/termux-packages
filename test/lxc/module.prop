@@ -1,0 +1,6 @@
+id=lxc
+name=LXC for Android
+author=tomxi1997
+description=LXC for Android (powered by Termux project)
+version=v6
+versionCode=2
