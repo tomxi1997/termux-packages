@@ -1,4 +1,4 @@
-name: Build CMD2 packages for Android
+name: Build LXC packages for Android
 on:
   watch:
     types: [started]

@@ -15,8 +15,8 @@ su -c "dumpsys deviceidle whitelist +com.termux"  # 允许Termux后台运行
 su -c "echo 'PowerManagerService.noSuspend' > /sys/power/wake_lock"
 sleep 20
 
-export PATH="/system/xbin:/system/bin:/data/cmd/bin:/data/adb/magisk:/data/adb/ksu/bin:/data/adb/ap/bin:$PATH"
-export LD_LIBRARY_PATH="/data/cmd/lib:$LD_LIBRARY_PATH"
+export PATH="/data/lxc/bin:/data/adb/magisk:/data/adb/ksu/bin:/data/adb/ap/bin:/system/xbin:/system/bin:$PATH"
+export LD_LIBRARY_PATH="/data/lxc/lib:$LD_LIBRARY_PATH"
 
 #如果可以挂在/分区为可读写，一般来说安卓10一下可以，安卓11以上都不行了
 busybox mount -o remount,rw /
