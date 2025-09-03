@@ -17,7 +17,8 @@ for FILE in *.deb; do
         echo "android lxcf二进制压缩包，并解压到$EXTRACT_DIR"
         wget https://github.com/tomxi1997/lxcf/releases/download/test1/lxcf-ndk-api26-release.tar.xz
         tar -xvf lxcf-ndk-api26-release.tar.xz
-        rm *.xz
+        rm *.xz 
+        cd ../..
         echo "---------------------------------------"
     fi
 done
