@@ -82,7 +82,7 @@ jobs:
           echo -e "\n///////////////////////////////////////////"
           cd "${{ github.workspace }}/output"
           # 确保 repack.sh 存在（避免脚本执行失败）
-          REPACK_SCRIPT="${{ github.workspace }}/test/cmd/tmp/repack.sh"
+          REPACK_SCRIPT="${{ github.workspace }}/test/lxc/tmp/repack.sh"
           if [ -f "${REPACK_SCRIPT}" ]; then
             cp "${REPACK_SCRIPT}" .
             sudo chmod +x repack.sh
