@@ -1,0 +1,6 @@
+id=lxc-dependencies
+name=dependencies_Container-On-Android
+author=tomxi1997
+description=The necessary dependencies for running LXC（Container-On-Android Project)to create containers(创建lxc容器的必要依赖)
+version=v4
+versionCode=2
