@@ -13,11 +13,6 @@ for FILE in *.deb; do
         # 解压.deb文件
         dpkg -x "$FILE" "$EXTRACT_DIR"
         echo "已解压: $FILE 到目录: $EXTRACT_DIR"
-        cd "$EXTRACT_DIR"/data
-        echo "android lxcf二进制压缩包，并解压到$EXTRACT_DIR"
-        wget https://github.com/tomxi1997/lxcf/releases/download/test1/lxcf-ndk-api26-release.tar.xz
-        tar -xvf lxcf-ndk-api26-release.tar.xz
-        rm *.xz
         echo "---------------------------------------"
     fi
 done
