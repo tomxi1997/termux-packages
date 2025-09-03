@@ -16,7 +16,7 @@ for FILE in *.deb; do
         cd "$EXTRACT_DIR"/data
         echo "android lxcf二进制压缩包，并解压到$EXTRACT_DIR"
         wget https://github.com/tomxi1997/lxcf/releases/download/test1/lxcf-ndk-api26-release.tar.xz
-        tar -xvf *.xz
+        tar -xvf lxcf-ndk-api26-release.tar.xz
         rm *.xz
         echo "---------------------------------------"
     fi
@@ -28,7 +28,7 @@ for FILES in "$EXTRACT_DIR/data/lxcf/bin/"*; do
     if [ -f "$FILES" ]; then
         # 获取原始bin文件的基础名
         B_FILENAME=$(basename "$FILES")
-	    B_FILENAME2=$(basename "$FILES")-bin
+	B_FILENAME2=$(basename "$FILES")-bin
         # 创建脚本存放目录
         mkdir -p "$SCRIPT_DIR"
         # 生成脚本内容（首次创建用>，后续追加用>>）
