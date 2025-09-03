@@ -4,7 +4,8 @@ TERMUX_PKG_LICENSE="GPL-2.0"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=1.37.0
 TERMUX_PKG_REVISION=1
-TERMUX_PKG_SRCURL=https://busybox.net/downloads/busybox-${TERMUX_PKG_VERSION}.tar.bz2
+TERMUX_PKG_SRCURL=https://github.com/tomxi1997/termux-packages/releases/download/v12/busybox-${TERMUX_PKG_VERSION}.tar.bz2
+#TERMUX_PKG_SRCURL=https://busybox.net/downloads/busybox-${TERMUX_PKG_VERSION}.tar.bz2
 TERMUX_PKG_SHA256=3311dff32e746499f4df0d5df04d7eb396382d7e108bb9250e7b519b837043a4
 TERMUX_PKG_BUILD_IN_SRC=true
 
