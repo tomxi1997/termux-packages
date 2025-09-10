@@ -7,7 +7,7 @@ on:
       packages:
         description: '需要构建的软件包（用空格分隔，例如：aria2 samba）'
         required: true
-        default: 'tar busybox wget perl liblzma dnsmasq util-linux'  # 默认构建包列表
+        default: 'tar busybox wget zstd liblzma dnsmasq util-linux'  # 默认构建包列表
 
 jobs:
   build:
